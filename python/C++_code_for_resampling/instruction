@@ -1,0 +1,14 @@
+- solve the problem that Davis's resampling code can only output isotropic resolution:
+
+1) see the code in /GitHub/Volume_Rendering_by_DL/C++ code for resampling
+use the ones in specify_resolution_and_dimension_by_manual_input
+
+2) open octomore:
+- type which dv-resample-volume, cd to that main folder ( the directory before "bin")
+- cd src
+- mv dv-resample-volume.cxx dv-resample-volume-raw.cxx (rename the original file in order not to lost it)
+- open macbook local terminal: cd to where I save Laura's code, scp dv-resample-volume.cxx cnn@mcveighlab-octomore:~/Documents/Repos/dv-commandline-utils/src
+- check in octomore whether it's correctly transferred
+- cd to includes, repeat the upper steps for dvResampleVolume.h, but to /src/includes
+- then in mac terminal: scp itkIndexOfMaxImageFilter.h cnn@mcveighlab-octomore:~/Documents/Repos/dv-commandline-utils/src/includes
+- then cd to dv-commandline-utils/bin, type make dv-resample-volume
