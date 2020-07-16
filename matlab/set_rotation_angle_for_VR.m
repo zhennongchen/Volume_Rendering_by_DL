@@ -8,10 +8,10 @@ addpath('/Users/zhennongchen/Documents/GitHub/Volume_Rendering_by_DL/matlab/func
 code_path = '/Users/zhennongchen/Documents/GitHub/Volume_Rendering_by_DL/matlab';
 %% load images
 % images
-image_file_name = '/Volumes/McVeighLab/projects/Zhennong/AI/CNN/all-classes-all-phases-1.5/ucsd_bivent/CVC1801081753/img-mat-sm/0.mat';
+image_file_name = '/Volumes/McVeighLab/projects/Zhennong/AI/CNN/all-classes-all-phases-1.5/ucsd_toshiba/028/img-mat-sm/0.mat';
 load(image_file_name)
 
-seg_file_name = '/Volumes/McVeighLab/projects/Zhennong/AI/CNN/all-classes-all-phases-1.5/ucsd_bivent/CVC1801081753/seg-mat-sm/0.mat';
+seg_file_name = '/Volumes/McVeighLab/projects/Zhennong/AI/CNN/all-classes-all-phases-1.5/ucsd_toshiba/028/seg-mat-sm/0.mat';
 load(seg_file_name)
 seg = zeros(size(segmentation));
 seg(segmentation==1) = 1;
@@ -20,10 +20,12 @@ seg(segmentation==4) = 1;
 seg_binary = seg > 0;
 
 %% get LV axis vector from MV plane
-load('/Users/zhennongchen/Documents/Zhennong_AI project/Patient mat data/Patient SAX plane vector/ucsd_bivent_CVC1801081753_par.mat');
-LV_axis = Normalize_Vector(cross(final_x,final_y));
+load('/Users/zhennongchen/Documents/Zhennong_AI project/Patient mat data/Patient SAX plane vector/ucsd_toshiba_028_par.mat');
+sax_x = final_x;
+sax_y = final_y;
+LV_axis = Normalize_Vector(cross(sax_x,sax_y));
 % get transformation (rotation) matrix
-[r1,m1,~,~] = Find_Transform_Matrix_For_Two_Vectors(Normalize_Vector(LV_axis),[0,0,-1]);%nontoshiba: only final_y to [1,0,0], toshiba: only final_t to [0,0,-1]
+[r1,m1,~,~] = Find_Transform_Matrix_For_Two_Vectors(Normalize_Vector(final_x),[0,1,0]);%nontoshiba: only final_y to [1,0,0], toshiba: only final_t to [0,0,-1]
 R = [m1(1,1) m1(1,2) m1(1,3) 0 ;m1(2,1) m1(2,2) m1(2,3) 0;m1(3,1) m1(3,2) m1(3,3) 0;0 0 0 1];
 R_form = affine3d(R);
 seg_rot_from_mv = imwarp(seg,R_form);
@@ -32,12 +34,45 @@ seg_rot_from_mv = imwarp(seg,R_form);
 %R = [m1(1,1) m1(1,2) m1(1,3) 0 ;m1(2,1) m1(2,2) m1(2,3) 0;m1(3,1) m1(3,2) m1(3,3) 0;0 0 0 1];
 %R_form = affine3d(R);
 %seg_rot_from_mv2 = imwarp(seg_rot_from_mv,R_form);
-%nii_seg_rot_from_mv = permute(nii_seg_rot_from_mv,[3 1 2]);
-%toshiba:
-%nii_seg_rot_from_mv = flip(nii_seg_rot_from_mv_2,3);
+
 %% view in volshow
 scale = [2,2,2];
-volshow(seg_rot_from_mv,config_028_raw,'ScaleFactors',scale);
+volshow(seg_rot_from_mv,config_001,'ScaleFactors',scale);
+%% test whether the rotation is according to left corner or the center
+rot_x = 0;
+rot_y = 0;
+rot_z = 45;
+[R,M] = Rotation_Matrix_From_Three_Axis(rot_x,rot_y,rot_z);
+R_form = affine3d(M);
+seg_test = imwarp(seg,R_form);
+image_test = imwarp(image,R_form);
+%%
+center1 = size(seg)' / 2;
+center2 = size(seg_test)'/2;
+p = [24,58,50]';
+so = R' * (p-center1)+center2;
+
+%%
+figure()
+imagesc(image(:,:,50));
+hold on
+plot(p(1),p(2),'rx')
+axis equal
+%%
+figure()
+imagesc(image_test(:,:,50));
+hold on
+axis equal
+plot(round(so(1)),round(so(2)),'rx')
+%%
+p = [100,100,50];
+disp(image(p(1),p(2),p(3)))
+pp = Apply_Transformation_On_Point(M,p);
+disp(image_test(pp(1),pp(2),pp(3)));
+%%
+[M_center] = Transform_Offset_Center(M,size(image));
+R_form_center = affine3d(M_center');
+image_test_center = imwarp(image,R_form_center);
 
 %%
 % patient_class: "ucsd_bivent", patient_num = 1~17

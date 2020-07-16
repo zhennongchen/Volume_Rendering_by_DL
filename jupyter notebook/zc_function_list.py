@@ -12,6 +12,7 @@ from nibabel.affines import apply_affine
 import math
 import xlsxwriter as xl
 import string
+import matplotlib.pyplot as plt
 
 # function: normalize one vector
 def normalize(x):
@@ -142,6 +143,7 @@ def DICE(seg1,seg2,target_val):
     I = I_set.shape[0] 
     DSC = (2 * I)/ (p1_n+p2_n)
     return DSC
+
     
 # function: find the affine matrix for any plane in SA stack based on the basal affine matrix
 def sa_affine(plane_center,image_center,basal_vectors):
@@ -365,6 +367,8 @@ def set_window(image,level,width):
     if len(image.shape) == 3:
         image = image.reshape(image.shape[0],image.shape[1])
 
+    new = copy_image(image)
+
     high = level + width
     low = level - width
     # normalize
@@ -376,8 +380,8 @@ def set_window(image,level,width):
             if image[i,j] < low:
                 image[i,j] = low
             norm = (image[i,j] - (low)) * unit
-            image[i,j] = norm
-    return image
+            new[i,j] = norm
+    return new
 
 
 # function: decomposite a quaterninan matrix
@@ -520,3 +524,10 @@ def relabel(raw_data,l1,l2):
         new_data[j[0],j[1],j[-1]] = l1
     
     return new_data
+
+# function: multiple slice view
+def show_slices(slices,colormap = "gray",origin_point = "lower"):
+    """ Function to display row of image slices """
+    fig, axes = plt.subplots(1, len(slices))
+    for i, slice in enumerate(slices):
+        axes[i].imshow(slice.T, cmap=colormap, origin=origin_point)
