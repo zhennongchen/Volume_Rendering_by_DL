@@ -531,3 +531,45 @@ def show_slices(slices,colormap = "gray",origin_point = "lower"):
     fig, axes = plt.subplots(1, len(slices))
     for i, slice in enumerate(slices):
         axes[i].imshow(slice.T, cmap=colormap, origin=origin_point)
+
+# function: calculate SNR and CNR
+def check_SNR(image,xrange,yrange,calculate_type = 'SNR'):
+    assert len(image.shape) == 2
+    assert len(xrange) == 2
+    assert len(yrange) == 2
+    
+    x_range = np.arange(xrange[0],xrange[1],1)
+    y_range = np.arange(yrange[0],yrange[1],1)
+    xgrid,ygrid = np.meshgrid(x_range,y_range)
+    intensity_list = []
+    for i in range(0,xgrid.shape[0]):
+        for j in range(0,xgrid.shape[1]):
+            intensity_list.append(image[xgrid[i,j],ygrid[i,j]])
+    intensity_list = np.asarray(intensity_list)
+    [peak,bottom,mean,std] = [np.max(intensity_list),np.min(intensity_list),np.mean(intensity_list),np.std(intensity_list)]
+    info = [peak,bottom,mean,std]
+    if calculate_type == 'SNR':
+        ans = peak / std
+    elif calculate_type == 'CNR':
+        ans = (peak - bottom) / std
+    else:
+        raise ValueError("Wrong calculate type")
+    return ans,info  
+
+# function: obtain the linear profile in 2D image
+def linear_profile(image,start,end):
+    start = np.asarray(start)
+    end = np.asarray(end)
+    vector = normalize(end - start)
+    profile = []
+    count = 1
+    while 1 == 1:
+        point = (start + vector * (count - 1))
+        profile.append(image[int(point[0]),int(point[1])])
+        if (point[0]>end[0] and vector[0] >=0) or (point[0]<end[0] and vector[0] <0):
+            if (point[1]>end[1] and vector[1] >=0) or (point[1]<end[1] and vector[1] <0):
+                break
+        count += 1
+    profile = np.asarray(profile)
+    pixel_list = np.arange(1,count+1,1)
+    return profile,pixel_list

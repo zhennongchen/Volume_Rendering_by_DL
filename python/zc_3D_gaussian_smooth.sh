@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # run in docker c3d
 
-readonly patients=(/Data/McVeighLabSuper/projects/Zhennong/AUH_patients/nii_files/14 )
+readonly patients=(/Data/McVeighLabSuper/projects/Zhennong/AUH_patients/nii_files/* )
 
 
 for p in ${patients[*]};
@@ -24,7 +24,12 @@ do
             echo ${i}
             outputfile=${phase_smooth_folder}$(basename ${i})
             
-            c3d ${i} -smooth 0.6mm ${outputfile} #change the sigma here
+            c3d ${i} -smooth 0.638mm ${outputfile} #change the sigma here FWHM = 2.35sigma
+            
+            #c3d ${i} -smooth 0.425mm ${phase_smooth_folder}0.nii.gz
+            #c3d ${i} -smooth 0.638mm ${phase_smooth_folder}0_0.6.nii.gz
+            #c3d ${i} -smooth 0.851mm ${phase_smooth_folder}0_0.8.nii.gz
+            
 
             done
 

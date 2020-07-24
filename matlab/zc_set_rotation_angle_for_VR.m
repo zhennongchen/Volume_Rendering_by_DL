@@ -17,7 +17,14 @@ seg = zeros(size(segmentation));
 seg(segmentation==1) = 1;
 seg(segmentation==2) = 1;
 seg(segmentation==4) = 1;
+seg(segmentation == 6) = 1;
+seg(segmentation == 7) = 1;
+seg(segmentation == 8) = 1;
+seg(segmentation == 9) = 1;
 seg_binary = seg > 0;
+scale = [1,1,1];
+figure()
+volshow(seg,config_001,'ScaleFactors',scale);
 
 %% get LV axis vector from MV plane
 load('/Users/zhennongchen/Documents/Zhennong_AI project/Patient mat data/Patient SAX plane vector/ucsd_toshiba_028_par.mat');
@@ -25,7 +32,7 @@ sax_x = final_x;
 sax_y = final_y;
 LV_axis = Normalize_Vector(cross(sax_x,sax_y));
 % get transformation (rotation) matrix
-[r1,m1,~,~] = Find_Transform_Matrix_For_Two_Vectors(Normalize_Vector(final_x),[0,1,0]);%nontoshiba: only final_y to [1,0,0], toshiba: only final_t to [0,0,-1]
+[r1,m1,~,~] = Find_Transform_Matrix_For_Two_Vectors(Normalize_Vector(LV_axis),[0,0,-1]);%nontoshiba: only final_y to [1,0,0], toshiba: only final_t to [0,0,-1]
 R = [m1(1,1) m1(1,2) m1(1,3) 0 ;m1(2,1) m1(2,2) m1(2,3) 0;m1(3,1) m1(3,2) m1(3,3) 0;0 0 0 1];
 R_form = affine3d(R);
 seg_rot_from_mv = imwarp(seg,R_form);
@@ -36,8 +43,20 @@ seg_rot_from_mv = imwarp(seg,R_form);
 %seg_rot_from_mv2 = imwarp(seg_rot_from_mv,R_form);
 
 %% view in volshow
-scale = [2,2,2];
+scale = [1,1,1];
+config_001.CameraPosition = [2,2,1];
+figure()
 volshow(seg_rot_from_mv,config_001,'ScaleFactors',scale);
+%% rotate in x-y plane to get different walls
+config_rot = config_001;
+position = config_rot.CameraPosition';
+[rot_in_xy,~] = Rotation_Matrix_From_Three_Axis(0,0,60);
+% why 60 degree
+new_position = rot_in_xy * position;
+config_rot.CameraPosition = new_position';
+figure()
+volshow(seg_rot_from_mv,config_rot,'ScaleFactors',scale);
+
 %% test whether the rotation is according to left corner or the center
 rot_x = 0;
 rot_y = 0;

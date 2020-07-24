@@ -30,7 +30,7 @@ do
 
   echo ${p}
   
-  if [ -d ${p}img-dcm ];
+  if [ -d ${p}CCTA_3 ];
   then
 
   output="/Volumes/McVeighLab/projects/Zhennong/AUH_patients/Converted_nii" # different directory from raw data
@@ -45,6 +45,7 @@ do
   fi
 
   IMGS=(${p}img-dcm-sorted/*/)
+  
   
   for i in $(seq 0 $(( ${#IMGS[*]} - 1 )));
       do
