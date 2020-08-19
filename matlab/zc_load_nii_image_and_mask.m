@@ -4,7 +4,7 @@ code_path = '/Users/zhennongchen/Documents/GitHub/Volume_Rendering_by_DL/matlab'
 addpath('/Users/zhennongchen/Documents/GitHub/Volume_Rendering_by_DL/matlab/nii_image_load')
 addpath('/Users/zhennongchen/Documents/GitHub/Volume_Rendering_by_DL/matlab/functions')
 %% load nii image
-nii_file_name = '/Users/zhennongchen/Documents/Zhennong_VR/Data/CVC1805021118/img-nii/0.nii.gz';
+nii_file_name = '/Users/zhennongchen/Documents/Zhennong_VR/Data/028/img-nii-sm-1.5/0.nii.gz';
 data = load_nii(nii_file_name);
 %% pixel spacing:
 % data.hdr can obtain the hdr dataset
@@ -19,7 +19,7 @@ nii_image = flip(nii_image,1);
 nii_image = flip(nii_image,2);
 nii_image = flip(nii_image,3);
 %% obtain the image data from dicom
-dicom_folder = '/Users/zhennongchen/Documents/Zhennong_VR/Data/CVC1805021118/img-dcm/Cardiac_Morphology_CTA_301_200%';
+dicom_folder = '/Users/zhennongchen/Documents/Zhennong_VR/Data/028/img-dcm/HALF 0% 0.73s Cardiac 0.5 CE - 2';
 dicom_files=dir([dicom_folder,'/','*.dcm']);
 cd(dicom_folder);
 
@@ -39,9 +39,9 @@ pixel_size=pixel_size(1);
 cd(code_path)
 %% view nii_image and dicom_image
 figure(1)
-imagesc(dicom_image(:,:,1));
+imagesc(dicom_image(:,:,6));
 figure(2)
-imagesc(nii_image(:,:,1));
+imagesc(nii_image(:,:,2));
 cd(code_path)
 %% view both images as greyscale
 window_level = 500;

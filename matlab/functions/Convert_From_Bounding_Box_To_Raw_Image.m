@@ -1,5 +1,7 @@
 function [convert_p] = Convert_From_Bounding_Box_To_Raw_Image(point_list,box)
 % point_list has Nx3 dimensions if for 3D object and Nx2 for 2D.
+% this function is used in convex hull. The convex hull object returns as a
+% bounding box, and we need to put it back into original image.
 
 convert_p = [];
 

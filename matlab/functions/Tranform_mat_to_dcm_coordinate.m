@@ -1,4 +1,4 @@
-function [output] = Tranform_mat_image(image,method)
+function [output] = Tranform_mat_to_dcm_coordinate(image,method)
 
 % transform mat image (use python to save image data from nii file to mat file) to dcm image
 % coordinate system

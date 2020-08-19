@@ -1,8 +1,10 @@
-function [R,M] = Rotation_Matrix_From_Three_Axis(rot_x,rot_y,rot_z)
+function [R,M] = Rotation_Matrix_From_Three_Axis(rot_x,rot_y,rot_z,degree)
 
+if degree == 1
 rot_x = rot_x / 180 * pi;
 rot_y = rot_y / 180 * pi;
 rot_z = rot_z / 180 * pi;
+end
 
 R_x = [1 0 0;0 cos(rot_x) -sin(rot_x);0 sin(rot_x) cos(rot_x)];
 R_y = [cos(rot_y)  0 sin(rot_y); 0 1 0 ;-sin(rot_y) 0 cos(rot_y)];
