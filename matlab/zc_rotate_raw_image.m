@@ -1,3 +1,5 @@
+% this script can rotate the image adata + segmentation data into correct
+% orientation as a pre-processing step.
 %% add path
 clear all
 addpath('/Users/zhennongchen/Documents/GitHub/Synthesize_heart_function_movie/matlab/NIfTI image processing/');
@@ -22,11 +24,11 @@ for i = 1:size(info.time_frames,2)
     seg_raw = zeros(size(seg_data.img));
     seg_raw(seg_data.img == 1) = 1;
     seg_raw(seg_data.img == 2) = 2;
-    seg_raw(seg_data.img == 4) = 2;
-    seg_raw(seg_data.img == 6) = 2;
-    seg_raw(seg_data.img == 7) = 2;
-    seg_raw(seg_data.img == 8) = 2;
-    seg_raw(seg_data.img == 9) = 2;
+    seg_raw(seg_data.img == 4) = 4;
+    seg_raw(seg_data.img == 6) = 6;
+    seg_raw(seg_data.img == 7) = 7;
+    seg_raw(seg_data.img == 8) = 8;
+    seg_raw(seg_data.img == 9) = 9;
     seg = Transform_nii_to_dcm_coordinate(seg_raw,0);
     
     Data(info.time_frames(i)).image_metadata = image_data; 
@@ -57,7 +59,7 @@ imagesc(Data(info.time_frames(2)).image_rot(:,:,100))
 load([info.code_path,'/config_default']);
 scale = [2 2 2];
 figure(3)
-volshow(Data(1).seg_rot>0,config,'ScaleFactors',scale);
+volshow(Data(1).seg_rot > 0,config,'ScaleFactors',scale);
 % rotate in x-y plane to get different walls
 config_rot = config;
 position = config_rot.CameraPosition';
@@ -68,7 +70,6 @@ config_rot.CameraPosition = new_position';
 figure(5)
 volshow(Data(1).seg_rot>0,config_rot,'ScaleFactors',scale);
 %% save data
-
 info.savedata_path = '/Users/zhennongchen/Documents/Zhennong_CT_Data/AI_dataset/rotated_data/';
 name = [info.patient_class,'_',info.patient_id,'_rot.mat'];
 save([info.savedata_path,name],'Data','info')
