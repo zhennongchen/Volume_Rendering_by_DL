@@ -5,6 +5,7 @@ fig2 = figure('pos',[10 10 2400 1800]);
 
 seg = [4 5 6 1 2 3 10 11 12 7 8 9 15 16 13 14]; % Order of AHA segments from 0 degrees
 
+% interestingly, they name inferior as anterior
 name = {'Basal Anterior','Basal Anteroseptal','Basal Inferoseptal','Basal Inferior','Basal Inferolateral','Basal Anterolateral',...
     'Mid Anterior','Mid Anteroseptal','Mid Inferoseptal','Mid Inferior','Mid Inferolateral','Mid Anterolateral',...
     'Apical Anterior','Apical Septal','Apical Inferior','Apical Lateral'};
@@ -78,6 +79,7 @@ for j = info.timeframes
     clear chunks list aha aha_err
 end
 
+% plot
 for j3 = 1:16
     
     for j = 1:length(info.timeframes)
@@ -85,7 +87,7 @@ for j3 = 1:16
         aha(j) = Mesh(info.timeframes(j)).AHA(j3);
         
     end
-    
+
     figure(fig1)
     subplot(3,6,j3);
     plot(info.percent_rr,aha,'LineWidth',3);
@@ -113,23 +115,3 @@ saveas(fig1,[s_path,info.patient,'_AHA'],'jpg')
 saveas(fig2,[s_path,info.patient,'_AHA_ms.fig'])
 saveas(fig2,[s_path,info.patient,'_AHA_ms'],'jpg')
 
-% for j3 = 1:16
-%     
-%     for j = 1:length(info.timeframes)
-%         
-%         aha_err(j) = Mesh(info.timeframes(j)).AHA_err(j3);
-%         
-%     end
-%       
-%     subplot(3,6,j3)
-%     plot(info.percent_rr,aha_err,'LineWidth',3);
-%     ax = gca; ax.FontSize = 10; ax.FontWeight= 'bold';
-%     ylim([info.err_limits]); xlim([0 100])
-%     yticks([0:1:10]); xticks(0:20:100)
-%     ylabel('Error (mm)','FontSize',12); xlabel('%R-R Phase','FontSize',12)
-%     title([num2str(j3),'. ',name{j3}],'FontSize',15)
-%     grid on; grid minor
-%         
-% end
-% 
-% savefig([info.save_path,info.patient,'_AHA_err.fig'])

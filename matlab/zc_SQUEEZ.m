@@ -213,7 +213,7 @@ info.err_limits = [-0.1 10];
 
 Mesh = AHA(Mesh,info);
 
-save([info.save_path,info.patient,'_step6_AHA.mat'],'Mesh','info')
+save([info.save_path,'/',info.patient,'_step6_AHA.mat'],'Mesh','info')
 
 disp('xxxxxxxxx - AHA plots generated - xxxxxxxxx')
 
