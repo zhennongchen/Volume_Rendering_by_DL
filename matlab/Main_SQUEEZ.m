@@ -10,22 +10,20 @@ addpath(genpath(function_path));
 load_path = '/Users/zhennongchen/Documents/GitHub/Volume_Rendering_by_DL/matlab/nii_image_load/';
 addpath(genpath(load_path));
 %% load patient data
-patient_class = 'ucsd_ccta';
-patient_id = 'CVC1803071006';
-data_path = '/Users/zhennongchen/Documents/Zhennong_CT_Data/AI_dataset/Rotated_Data/';
-load([data_path,patient_class,'_',patient_id,'_rot.mat'],'Data')
+clear Data
+info.patient = 'CVC1809131438';
+info.data_path = ['/Users/zhennongchen/Documents/Zhennong_CT_Data/VR_dataset/',info.patient];
+load([info.data_path,'/',info.patient,'_rot_angle.mat'],'Data','edes','rot_angle')
 %% Define parameters
 % MATLAB version
 info.matlab = 0;    % 1 - if you have R2018b and later, else 0 (Not yet developed: DON'T USE!!!)
-
-% Data set name
-info.patient = [patient_class,'_',patient_id];
 
 % whether the Data already has rotated image and seg
 info.already_rotated = 1;           %the Data already have rotated image and seg
 
 % Paths
-info.save_path = ['/Users/zhennongchen/Documents/GitHub/Volume_Rendering_by_DL/matlab/SQUEEZ_Temp_Results/',info.patient]; % Folder path to save results
+info.img_path = ['/Volumes/McVeighLab/projects/Zhennong/Zhennong_CT_Data/',info.patient];
+info.save_path = [info.data_path,'/SQUEEZ_Results'];
 mkdir(info.save_path)
 info.save_image_path =[info.save_path,'/plots/']; 
 mkdir(info.save_image_path)
@@ -33,8 +31,8 @@ info.save_movie_path =[info.save_path,'/movies/'];
 mkdir(info.save_movie_path)
 
 % Image preparation parmeters
-info.pixel_size = Data(1).image_metadata.hdr.dime.pixdim(2:4);
-if length(unique(info.pixel_size)) == 1
+info.pixel_size = Data(1).image_hdr.dime.pixdim(2:4);
+if length(unique(round(info.pixel_size,1))) == 1
     info.iso_res = info.pixel_size(1);%Standardized starting resolution in mm
     info.desired_res = info.iso_res;
 else
@@ -50,14 +48,14 @@ info.la_label = 2;
 info.lvot_label = 4;
 
 % Time frame list
-info.timeframes = [1,4];           %Desired time frames for analysis
+info.timeframes = edes;           %Desired time frames for analysis
 info.template = 1;                  %Used as template mesh for CPD warping
 info.reference = 1 ;                 %Used as reference phase for strain calculations
 
 % volume curve parameter list
 %info.percent_rr = round(linspace(-3,93,14),0);                     %Enter %R-R values corresponding to time frame numbers
 %info.percent_rr = [0:10:90];
-info.percent_rr = [0,20];
+info.percent_rr = [0,50];
 %info.time_ms =linspace(0,740,10); %0043,101e in the metadata
 info.time_ms = [0,75];
 
@@ -98,7 +96,7 @@ disp('xxxxxxxxx - Meshes Extracted - xxxxxxxxx')
 close all;
 
 EF = round(((info.vol(info.reference)-min(info.vol(info.timeframes)))/info.vol(info.reference))*100,1);
-save([info.save_path,info.patient,'_EF.mat'],'EF')
+save([info.save_path,'/',info.patient,'_EF.mat'],'EF')
 
 figV = figure(1); plot(info.percent_rr,info.vol(info.timeframes),'LineWidth',4);
 grid on; grid minor
@@ -111,7 +109,7 @@ figV.Units='normalized';
 figV.Position=[0 0 0.8 1]; 
 figV.PaperPositionMode='auto';
 
-savefig([info.save_image_path,info.patient,'_VolvsRRper.fig'])
+savefig([info.save_image_path,'/',info.patient,'_VolvsRRper.fig'])
 close all
 figs = openfig([info.save_image_path,info.patient,'_VolvsRRper.fig']);
 saveas(figs,[info.save_image_path,info.patient,'_VolvsRRper.jpg']);
@@ -225,7 +223,7 @@ info.RSct_limits = [-0.3 0.1];
 
 Mesh = Bullseye_Plots(Mesh,info);
 
-save([info.save_path,info.patient,'_step7_bullseye.mat'],'Mesh','info')
+save([info.save_path,'/',info.patient,'_step7_bullseye.mat'],'Mesh','info')
 
 disp('xxxxxxxxx - Bullseye plots generated - xxxxxxxxx')
 
@@ -235,9 +233,9 @@ figs = openfig([info.save_image_path,info.patient,'_Bullseye.fig']);
 saveas(figs,[info.save_image_path,info.patient,'_Bullseye.jpg']);
 %% Step 8: 4D SQUEEZ
 
-[Mesh,info] = squeez_4D_movie(Mesh,info);
+[Mesh,info] = squeez_4D_movie_modified(Mesh,info);
 
- save([info.save_path,info.patient,'_step8_4DSQUEEZ.mat'],'Mesh','info') 
+ save([info.save_path,'/',info.patient,'_step8_4DSQUEEZ.mat'],'Mesh','info') 
  
 %% High resolution meshes for 3D visual display
 

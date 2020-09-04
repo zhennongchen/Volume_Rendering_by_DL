@@ -28,10 +28,10 @@ for j = 1:length(info.timeframes) % Time frame loop
     x = (1:size(I,2)).*res(2);
     y = (1:size(I,1)).*res(1);
     z = (1:size(I,3)).*res(3);
+    xq = linspace(1*res(2),size(I,2)*res(2),round(length(x)*(res(2)/info.iso_res)));
+    yq = linspace(1*res(1),size(I,1)*res(1),round(length(y)*(res(1)/info.iso_res)));
+    zq = linspace(1*res(3),size(I,3)*res(3),round(length(z)*(res(3)/info.iso_res)));
     if ~all(res/info.iso_res) 
-        xq = linspace(1*res(2),size(I,2)*res(2),round(length(x)*(res(2)/info.iso_res)));
-        yq = linspace(1*res(1),size(I,1)*res(1),round(length(y)*(res(1)/info.iso_res)));
-        zq = linspace(1*res(3),size(I,3)*res(3),round(length(z)*(res(3)/info.iso_res)));
         I = interp3(x,y,z,I,xq,yq',zq,'nearest');
     end
     
@@ -95,7 +95,7 @@ for j = 1:length(info.timeframes) % Time frame loop
             info.th_y = 0;
         else
             % Extracting nii image to define angles for rotation
-            dummy = load_nii([info.img_path,'img_',num2str(info.timeframes(j)-1,'%02d'),'.nii.gz']);
+            dummy = load_nii([info.img_path,'/img-nii-1.5/',num2str(info.timeframes(j)-1),'.nii.gz']);
             Irot = double(dummy.img);
             Irot = permute(Irot,[2 1 3]); Irot = flip(Irot,1); Irot = flip(Irot,2);
             Irot = interp3(x,y,z,Irot,xq,yq',zq);
@@ -165,6 +165,7 @@ for j = 1:length(info.timeframes) % Time frame loop
     im_la = zeros(size(I)); im_la(I==2) = 1;
     im_lvot = zeros(size(I)); im_lvot(I==4) = 1;
     if info.desired_res ~= info.iso_res
+        disp(['Averaging filter applied']);
         % Averaging filter
         stp = round(info.desired_res./info.iso_res.*ones(1,3));
         ff = ones(stp+1);
@@ -242,6 +243,9 @@ for j = 1:length(info.timeframes) % Time frame loop
     
     %Extracting mesh of LV
     [f,v] = isosurface(im_lv,0);
+    %%%%% 
+    % in v, the vertex coordinate is [y x z])
+    %%%%%
     Mesh(info.timeframes(j)).faces = f; Mesh(info.timeframes(j)).vertices = v;
     
     %Identifying vertices that belong to planes identified previously

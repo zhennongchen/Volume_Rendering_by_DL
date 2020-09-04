@@ -1,4 +1,4 @@
-function [Mesh,info] = squeez_4D_movie(Mesh,info)
+function [Mesh,info] = squeez_4D_movie_modified(Mesh,info)
 name = [info.patient];
 s_path = info.save_movie_path;
 mov_VU=[0 0];
@@ -21,8 +21,8 @@ for i = info.timeframes
     
 end
 
-max_val=max(max_v,[],2);
-min_val=min(min_v,[],2);
+max_val=max(max_v(:,info.timeframes),[],2);
+min_val=min(min_v(:,info.timeframes),[],2);
 ax_vals=[min_val(1) max_val(1) min_val(2) max_val(2) min_val(3) max_val(3)];
 
 buff_val=0.2;
