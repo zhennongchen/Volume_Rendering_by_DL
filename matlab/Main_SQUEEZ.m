@@ -11,7 +11,7 @@ load_path = '/Users/zhennongchen/Documents/GitHub/Volume_Rendering_by_DL/matlab/
 addpath(genpath(load_path));
 %% load patient data
 clear Data
-info.patient = 'CVC1809131438';
+info.patient = 'CVC1811211329';
 info.data_path = ['/Users/zhennongchen/Documents/Zhennong_CT_Data/VR_dataset/',info.patient];
 load([info.data_path,'/',info.patient,'_rot_angle.mat'],'Data','edes','rot_angle')
 %% Define parameters
@@ -102,7 +102,7 @@ figV = figure(1); plot(info.percent_rr,info.vol(info.timeframes),'LineWidth',4);
 grid on; grid minor
 title(['Ejection Fraction: ' num2str(EF),'%'])
 set(gca,'FontSize',50)
-axis([-10 110 0 200])
+axis([-10 110 0 max(info.vol)+50])
 xlabel('R-R interval (%)'); ylabel('Volume (mL)')
 
 figV.Units='normalized';

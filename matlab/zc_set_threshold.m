@@ -6,11 +6,11 @@ addpath('/Users/zhennongchen/Documents/GitHub/Volume_Rendering_by_DL/matlab/func
 addpath('/Users/zhennongchen/Documents/GitHub/Volume_Rendering_by_DL/matlab/nii_image_load');
 %% 
 %main_path = '/Volumes/McVeighLab/projects/Zhennong/AI/AI_datasets/';
-main_path = '/Users/zhennongchen/Documents/Zhennong_CT_Data/AUH/';
-patient = '';
+main_path = '/Users/zhennongchen/Documents/Zhennong_CT_Data/patients_to_segment/';
+patient = 'CVC1910111026';
 nii_file_name = [main_path,patient,'/img-nii/0.nii.gz'];
 data = load_nii(nii_file_name);
-image = Transform_nii_image(data.img);
+image = Transform_nii_to_dcm_coordinate(data.img,0);
 
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

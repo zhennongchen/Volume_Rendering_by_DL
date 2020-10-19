@@ -5,9 +5,9 @@ addpath('/Users/zhennongchen/Documents/GitHub/Volume_Rendering_by_DL/matlab/nii_
 addpath('/Users/zhennongchen/Documents/GitHub/Volume_Rendering_by_DL/matlab/functions')
 %% load nii images and segmentation
 % images
-nii_file_name = '/Users/zhennongchen/Documents/Zhennong_VR/Data/028/img-nii-sm-1.5/0.nii.gz';
+nii_file_name = '/Users/zhennongchen/Documents/Zhennong_VR/Data/028/img-nii-sm/0.nii.gz';
 data = load_nii(nii_file_name);
-nii_image = Transform_nii_image(double(data.img));
+nii_image = Transform_nii_to_dcm_coordinate(double(data.img),1);
 window_level = 500;
 window_width = 900;
 slice_number = 40;
@@ -16,12 +16,12 @@ figure()
 imshow(nii_image_slice);
 truesize([300 300])
 % segmentation
-seg_file_name = '/Users/zhennongchen/Documents/Zhennong_VR/Data/028/seg-pred-1.5/H_test1_plan4_s_0.nii.gz';
+seg_file_name = '/Users/zhennongchen/Documents/Zhennong_VR/Data/028/seg-pred/H_test1_plan4_s_0.nii.gz';
 seg = load_nii(seg_file_name);
 nii_seg = zeros(size(seg.img));
 nii_seg(seg.img==1) = 1;
 nii_seg(seg.img==2) = 2;
-nii_seg = Transform_nii_image(nii_seg);
+nii_seg = Transform_nii_to_dcm_coordinate(nii_seg,1);
 nii_seg_binary = nii_seg > 0;
 figure()
 imagesc(nii_seg(:,:,40));
@@ -66,9 +66,11 @@ for p = 1:size(point_list,1)
         end
 end
 %% view 2D
-slice = [40:50];
+slice = [40];
 for i = slice
-    figure()
+    figure(1)
+    imagesc(nii_seg_binary(:,:,i))
+    figure(2)
     imagesc(seg_convex_2D_view(:,:,i));
 end
 %% use segmentation as a mask

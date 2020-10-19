@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 ########################################
 # run at mcveighlab-octomore, save locally at octomore, need to transfer back to NAS
+# Currently can only run in octomore terminal, cd Developer, . .py35/bin/activate to activate the Virtual environment
 #######################################
 
 . defaults.sh

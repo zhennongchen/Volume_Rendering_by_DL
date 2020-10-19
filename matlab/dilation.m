@@ -6,14 +6,14 @@ addpath('/Users/zhennongchen/Documents/GitHub/Volume_Rendering_by_DL/matlab/func
 %% load nii image
 nii_file_name = '/Users/zhennongchen/Documents/Zhennong_VR/Data/CVC1805021118/img-nii/0.nii.gz';
 data = load_nii(nii_file_name);
-nii_image = Transform_nii_image(double(data.img));
+nii_image = Transform_nii_to_dcm_coordinate(double(data.img),1);
 %% load nii segmentation
 seg_file_name = '/Users/zhennongchen/Documents/Zhennong_VR/Data/CVC1805021118/seg-nii/0.nii.gz';
 seg = load_nii(seg_file_name);
 nii_seg = zeros(size(seg.img));
 nii_seg(seg.img==1) = 1;
 nii_seg(seg.img==2) = 2;
-nii_seg = Transform_nii_image(nii_seg);
+nii_seg = Transform_nii_to_dcm_coordinate(nii_seg,1);
 %% dilate
 SE = strel('sphere',6);
 dilated = imdilate(nii_seg,SE);

@@ -21,18 +21,25 @@ for i = 1: size(files,1)
     s = split(n,'.');
     timeframes = [timeframes str2num(s{1})+1];
 end
+timeframes = sort(timeframes);
 cd(code_path)
 clear s n
 %% Step 2: Get ED/ES
 % if already defined in es.txt, then no need to do this step
 ed = 1;
-if isfile([data_path,patient,'/es.txt']) == 1
-    fID = fopen([data_path,patient,'/es.txt'],'r');
+if isfile([data_path,'/',patient,'/es.txt']) == 1
+    fID = fopen([data_path,'/',patient,'/es.txt'],'r');
     es = fscanf(fID,'%d');
+    edes = [ed,es+1];
 else
-    [es,lv_volume_list] = Find_ES_by_LV_Volume_List([data_path,patient,'/',seg_folder_low,'/'],timeframes);
+    [es,lv_volume_list] = Find_ES_by_LV_Volume_List([data_path,'/',patient,'/',seg_folder_low,'/'],timeframes);
+    edes = [ed,timeframes(es)];
+    es = timeframes(es);
+    fid = fopen([data_path,patient,'/es.txt'],'wt');
+    fprintf(fid, '%d',es-1);
+    fclose(fid);
 end
-edes = [ed,timeframes(es)];clear ed es fID
+clear ed es fID
 %% Step 3: Obtain Re-orientation angle 
 rot_angle = Obtain_Reorientation_Angle_for_Patient(patient,[data_path,patient,'/',image_folder_low,'/'],[data_path,patient,'/',seg_folder_low,'/']);
 %% Step 4: Get Data for SQUEEZ test
@@ -49,6 +56,11 @@ for i = 1:size(edes,2)
     Data(t).image_hdr = image_data.hdr; Data(t).image = image; Data(t).seg_hdr = seg_data.hdr; Data(t).seg = seg; 
     Data(t).image_rot = Irot; Data(t).seg_rot = segrot; Data(t).rotinfo = rot_angle;
 end
+%% Step 4b: use volshow to assess the orientation angle
+load([code_path,'config_default.mat']);
+view_angle = [0:60:350];
+[position_list] = Make_Volshow_all_Angle(Data(1).seg_rot > 0,view_angle,config);
+%% Step 4c: save
 if save_data == 1
     save([savepath,'/',patient,'_rot_angle.mat'],'Data','rot_angle','edes');
 end
@@ -60,7 +72,7 @@ load([savepath,'/SQUEEZ_Results/',patient,'_step4_MeshRotation.mat'],'Mesh','inf
 %% Step 6: assign MI pixels different pixel value in segmentation
 set_threshold_manual = 1;
 if set_threshold_manual == 1
-    threshold = -0.05;
+    threshold = -0.1;
 else
     rs_list = Mesh(edes(2)).RSct_vertex';
     threshold = max(rs_list) - (max(rs_list) - min(rs_list)) * 0.2;

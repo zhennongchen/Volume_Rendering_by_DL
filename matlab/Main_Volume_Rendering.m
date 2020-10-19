@@ -7,7 +7,7 @@ code_path = '/Users/zhennongchen/Documents/GitHub/Volume_Rendering_by_DL/matlab/
 %data_path = '/Volumes/McVeighLab/projects/Zhennong/AI/CNN/all-classes-all-phases-1.5/';
 data_path = '/Volumes/McVeighLab/projects/Zhennong/Zhennong_CT_Data/';
 %% Step 1: Define patient and parameters
-patient = 'CVC1809131438';
+patient = 'CVC1910100933';
 MN_or_DL = 'MN'; % MN = manual segmentation, DL = deep learning segmentation
 
 save_path = ['/Users/zhennongchen/Documents/Zhennong_CT_Data/VR_dataset/',patient];
@@ -23,6 +23,7 @@ for i = 1: size(files,1)
     s = split(n,'.');
     timeframes = [timeframes str2num(s{1})+1];
 end
+timeframes = sort(timeframes);
 cd(code_path)
 clear s n
 
@@ -30,15 +31,11 @@ clear s n
 load([code_path,'config_image.mat']);
 save_movie_path = [save_path,'/Volume_Rendering_Movie']; mkdir(save_movie_path);
 view_angle = [0:60:350];
-
 position = config_image.CameraPosition';
 scale = [1,1,1];
-% seg window level and window width for transfer function (need to set
-% better threshold)
-WL = 500;
-WW = 300;
+
 %% Step 2: Load the data
-load([save_path,'/',patient,'_rot_angle.mat'],'rot_angle','edes')
+load([save_path,'/',patient,'_rot_angle.mat'])
 for i = 1:size(timeframes,2)
     t = timeframes(i);
     
@@ -62,31 +59,44 @@ for i = 1:size(timeframes,2)
     disp(['finish second rot'])
     [~,M_y] = Rotation_Matrix_From_Three_Axis(0,0,rot_angle.third_z,0);
     tform_y = affine3d(M_y');
-    Irot = imwarp(Irot,tform_y);
+    Irot = imwarp(Irot,tform_y,'FillValue',min_value);
     toc
     
-    [box] = Bounding_box(Irot,30);
-    Image_LV(t).image = Irot;
+    [box] = Bounding_box(Irot,20);
     Image_LV(t).box = box; 
+    Image_LV(t).image = Irot(box(1):box(2),box(3):box(4),box(5):box(6));
     disp(['finish time frame ',num2str(t-1)]);
     clear image_masked Irot 
 end
-% apply bounding box
+%% apply bounding box uniform to all time frames
 box_list = [];
 for i = 1:size(timeframes,2)
     t = timeframes(i);
     box_list = [box_list; Image_LV(t).box];
 end
-box = [min(box_list(:,1)),  max(box_list(:,2)), min(box_list(:,3)), max(box_list(:,4)), min(box_list(:,5)), max(box_list(:,6))]; 
+box = [max(box_list(:,1)),  min(box_list(:,2)), max(box_list(:,3)), min(box_list(:,4)), max(box_list(:,5)), min(box_list(:,6))]; 
 
 for i = 1:size(timeframes,2)
     t = timeframes(i); II = Image_LV(t).image;
-    Image_LV(t).image = II(box(1):box(2),box(3):box(4),box(5):box(6));
+    box_t = Image_LV(t).box;
+    Image_LV(t).image = II(1+box(1)-box_t(1):size(II,1)-(box_t(2)-box(2)),1+box(3)-box_t(3):size(II,2)-(box_t(4)-box(4)),1+box(5)-box_t(5):size(II,3)-(box_t(6)-box(6)));
     clear II t
 end
 save([save_path,'/',patient,'_rot_image.mat'],'Image_LV');
 %% Step 2a: Dilation and threshold setting for LV mask (only if it's DL segmentation)
-%% Step 3: make Volume rendering movie
+%% Step 3: set WL and WW
+decrease = 100;
+if isfile([save_path,'/',patient,'_thresholding.mat']) == 1
+    load([save_path,'/',patient,'_thresholding.mat'])
+else
+WL = Set_WindowLevel_Based_on_CenterIntensityProfile(Data(1).image,Data(1).seg,5,decrease);
+WW = 100;
+save([save_path,'/',patient,'_thresholding.mat'],'WW','WL');
+fid = fopen([save_path,'/',patient,'_thresholding.txt'],'wt');
+fprintf(fid, [num2str(WL),'\n',num2str(WW)]);
+fclose(fid);
+end
+%% Step 4: make Volume rendering movie
 load([save_path,'/',patient,'_rot_image.mat'])
 
 for i = 1:size(view_angle,2)
@@ -94,6 +104,7 @@ for i = 1:size(view_angle,2)
 
     save_name = [save_movie_path,'/',patient,'_volume_rendering_',num2str(angle)];
     writerObj = VideoWriter(save_name,'Motion JPEG AVI');
+    writeObj.Quality = 100;
     writerObj.FrameRate = 5;
     
     % open the video writer
@@ -103,7 +114,7 @@ for i = 1:size(view_angle,2)
     
     for t = timeframes
         disp(t)
-        clf;
+        close all;
         I = Image_LV(t).image;
         J = Turn_data_into_greyscale(I,WL,WW);
         
@@ -112,7 +123,7 @@ for i = 1:size(view_angle,2)
         new_position = rot_in_xy * position;
         config_image_new.CameraPosition = new_position';
         
-        h = figure('pos',[10 10 1000 1000]);
+        h = figure('pos',[10 10 500 500]);
         volshow(J,config_image_new,'ScaleFactor',scale); 
         frame = getframe(h);
         writeVideo(writerObj, getframe(gcf));
@@ -122,18 +133,19 @@ for i = 1:size(view_angle,2)
     close all
     disp(['Done making movie for degree ',num2str(angle)])
 end
-%% Step 3b: Generate rotating LV movie
+% Step 4b: Generate rotating LV movie
 num_of_cardiac_cycle = 4;
 angle_increment = 360/num_of_cardiac_cycle/size(timeframes,2);
 angle = 0;
 save_name = [save_movie_path,'/',patient,'_volume_rendering_rotating',];
 writerObj = VideoWriter(save_name,'Motion JPEG AVI');
+writerObj.Quality = 100;
 writerObj.FrameRate = 5;
 open(writerObj);
 for i = 1:num_of_cardiac_cycle
     for t = timeframes
         disp([i,t])
-        clf
+        close all
         I = Image_LV(t).image;
         J = Turn_data_into_greyscale(I,WL,WW);
         
@@ -142,7 +154,7 @@ for i = 1:num_of_cardiac_cycle
         new_position = rot_in_xy * position;
         config_image_new.CameraPosition = new_position';
         
-        h = figure('pos',[10 10 1000 1000]);
+        h = figure('pos',[10 10 500 500]);
         volshow(J,config_image_new,'ScaleFactor',scale); 
         frame = getframe(h);
         writeVideo(writerObj, getframe(gcf));
@@ -153,7 +165,7 @@ end
 close(writerObj);
 close all
 disp(['Done making movie rotating'])
-%% Step 4 (additional): save dicom image
+%% Step 5 (additional): save dicom image
 dicom_path = [data_path,patient,'/img-dcm/'];
 dicom_folders = Find_all_folders(dicom_path);
 dicom_folder = [dicom_path,dicom_folders(1).name];
@@ -169,6 +181,7 @@ for t = timeframes
     metadata_new.RescaleIntercept = 0;
 
     I = int16(Image_LV(t).image);
+    I = flip(I,3);
     
     for z = 1:size(I,3)
         X=[F,'/',num2str(z),'.dcm'];
@@ -180,4 +193,4 @@ for t = timeframes
     end
     series_num = series_num + 10;
 end
-    
+disp(['finish']);   
