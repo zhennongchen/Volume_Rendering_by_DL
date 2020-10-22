@@ -1,0 +1,7 @@
+%% add path
+clear all;
+addpath('/Users/zhennongchen/Documents/GitHub/Volume_Rendering_by_DL/matlab/nii_image_load');
+addpath('/Users/zhennongchen/Documents/GitHub/Volume_Rendering_by_DL/matlab/functions');
+%% Load the patient list
+year = '2019';
+[~,~,data] = xlsread(['/Users/zhennongchen/Documents/Zhennong_CT_Data/Patient_Overview/',year,'_Patient_Radiology_Records_Function.csv']);

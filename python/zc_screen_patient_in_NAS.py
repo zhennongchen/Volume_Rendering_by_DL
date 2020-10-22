@@ -4,6 +4,12 @@
 # this script screens all the cases in NAS drive, to find the patient cases having function.
 ##
 
+## Notice:
+## in assert_function_folder step, I forgot to turn the string into lowercase which may result in
+# the loss of inclusion of some patients
+
+## specify_functoin_folder step is re-written in zc_specify_function_folders in jupyter notebook
+
 import os
 import numpy as np
 import zc_function_list as ff
@@ -76,7 +82,7 @@ for Y in year_list:
         function_D = []
         count = 0
         for i in D:
-            if assert_function_folder(i,['%','_TO_','_to_','CCTA','CTA','ccta','cta','ccta','HALF','Function','function']) == 1:
+            if assert_function_folder(i,['%','_TO_','_to_','CCTA','CTA','ccta','cta','HALF','Function','function']) == 1:
                 count += 1
                 function_D.append(i)
 

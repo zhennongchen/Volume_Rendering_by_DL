@@ -10,15 +10,10 @@ from scipy.interpolate import RegularGridInterpolator
 import nibabel as nib
 from nibabel.affines import apply_affine
 import math
-import xlsxwriter as xl
 import string
 import matplotlib.pyplot as plt
 import cv2
 
-# function: minimize the line of codes when you have several list to append
-def massive_list_append(list_list,append_list):
-    assert len(list_list) == len(append_list)
-    [list_list[i].append(append_list[i]) for i in range(0,len(append_list))]
 
 # function: make folders
 def make_folder(folder_list):
@@ -69,142 +64,11 @@ def project_onto_plane(u,n):
     n = normalize(n)
     return (u - dotproduct(u,n) * n)
 
-# function: only pick one time frame from each patient
-def one_time_frame_per_patient(x):
-  '''only pick one time frame for each patient'''
-  for i in range(len(x)):
-    if i%2 == 1:
-      x[i]='0'
-  return x[x!='0']
-
 # function: turn normalized vector into pixel unit
 def turn_to_pixel(vec,size=[160,160,96]):
     t=vec.reshape(3,).tolist()
     result = [t[i]*size[i]/2 for i in range(0,3)]
     return np.array(result)
-
-# function: extract vectors from numpy file
-def get_ground_truth_vectors(filename):
-    a = np.load(os.path.join(filename),allow_pickle=True)
-    [t,x,y,s,img_center] = [a[12],a[5],a[7],a[11],a[14]]
-    result = {'t':t,'x':x,'y':y,'s':s,'img_center':img_center}
-    return result
-
-def get_predicted_vectors(file_t,file_r,scale,image_center):
-    f1 = np.load(os.path.join(file_t),allow_pickle=True)
-    f2 = np.load(os.path.join(file_r),allow_pickle=True)
-    t = turn_to_pixel(f1[0])
-    [x,y] = [f2[1],f2[-1]]
-    result = {'t':t,'x':x,'y':y,'s':scale,'img_center':image_center}
-    return result
-
-# function: two functions above in the product version:
-def get_ground_truth_vectors_product_v(filename):
-    a = np.load(os.path.join(filename),allow_pickle=True)
-    [t,x,y,img_center] = [a[0],a[2],a[3],a[4]]
-    result = {'t':t,'x':x,'y':y,'img_center':img_center}
-    return result
-
-def get_predicted_vectors_product_v(file_t,file_r,scale,image_center):
-    f1 = np.load(os.path.join(file_t),allow_pickle=True)
-    f2 = np.load(os.path.join(file_r),allow_pickle=True)
-    t = turn_to_pixel(f1[0])
-    [x,y] = [f2[1],f2[-1]]
-    result = {'t':t,'x':x,'y':y,'s':scale,'img_center':image_center}
-    return result
-
-# function: find the matrix of vectors for any plane in SA stack based on the basal vectors
-def make_matrix_for_any_plane_in_SAX_stack(plane_center,image_center,basal_vectors):
-    result = {'t':plane_center - image_center,'x':basal_vectors['x'],'y':basal_vectors['y'],'s':basal_vectors['s'],'img_center':basal_vectors['img_center']}
-    return result
-
-# function: get pixel dimensions
-def get_voxel_size(nii_file_name):
-    ii = nib.load(nii_file_name)
-    h = ii.header
-    return h.get_zooms()
-
-# function: find the number of slices above the basal plane and the number of slices lower the basal plane for SAX stack. the stack starts from 2 planes before where
-# LV segmentation starts and ends two planes after where LV segmentaion ends. 
-def find_num_of_slices_in_SAX(mpr_data,image_center,t_m,x_m,y_m,seg_m_data,pixel_dimension = 1.5):
-    ''' returned a is the number of planes upon the basal plane, returned b is the number of planes below the basal plane'''
-    n_m =  normalize(np.cross(x_m,y_m))
-    test_a = 1
-    a_manual = 0
-    while test_a == True:
-        a_manual += 1
-        plane = reslice_mpr(mpr_data,(image_center + t_m + (-n_m) * 8 * a_manual / pixel_dimension),x_m,y_m,1,1,define_interpolation(seg_m_data,Fill_value=0,Method='nearest'))
-        test_a = (1.0 in plane)
-    a_manual += 1
-
-    test_b = 1
-    b_manual = 2
-    while test_b == True:
-        b_manual += 1
-        plane = reslice_mpr(mpr_data,(image_center + t_m + (n_m) * 8 * b_manual / pixel_dimension),x_m,y_m,1,1,define_interpolation(seg_m_data,Fill_value=0,Method='nearest'))
-        test_b = (1.0 in plane)
-        if test_b == False:
-            # in case there is a gap that is not the end of LV, we keep searching with two slices away
-            c = b_manual + 1
-            plane1 = reslice_mpr(mpr_data,(image_center + t_m + (n_m) * 8 * c / pixel_dimension),x_m,y_m,1,1,define_interpolation(seg_m_data,Fill_value=0,Method='nearest'))
-            
-            cc = b_manual + 2
-            plane2 = reslice_mpr(mpr_data,(image_center + t_m + (n_m) * 8 * cc / pixel_dimension),x_m,y_m,1,1,define_interpolation(seg_m_data,Fill_value=0,Method='nearest'))
-            
-            t1 = (1.0 in plane1);t2 = (1.0 in plane2)
-            if t2 == True:
-                b_manual = cc; test_b = 1
-            if (t2 == False) and (t1 == True):
-                b_manual = c; test_b = 1
-            if (t1 == False) and (t2 == False):
-                test_b = 0  
-    b_manual += 1
-    return a_manual,b_manual
-
-# function: find a list of all center coordinate given start point and number of planes for SA stack
-def find_center_list(start_center,n,num_of_plane,slice_thickness,pixel_dimension = 1.5):
-    # n is normal vector
-    center_list = start_center.reshape(1,3)
-    for i in range(1,num_of_plane):
-        c = start_center + n * slice_thickness * (i) / pixel_dimension
-        center_list = np.concatenate((center_list,c.reshape(1,3)))
-    return center_list
-
-# find center list for the whole stack (refer to function find_num_of_slices_in_SAX
-def find_center_list_whole_stack(start_center,n,num_a,num_b,slice_thickness,pixel_dimension = 1.5):
-    # n is normal vector
-    center_list = start_center.reshape(1,3)
-    for i in range(1,num_a + 1):
-        c = start_center + -n * slice_thickness * (i) / pixel_dimension
-        center_list = np.concatenate((c.reshape(1,3),center_list))
-    for i in range(1,num_b + 1):
-        c = start_center + n * slice_thickness * (i) / pixel_dimension
-        center_list = np.concatenate((center_list,c.reshape(1,3)))
-    return center_list
-
-# function: find the indexes base, mid or apex 
-def base_mid_apex(range_of_index,num_of_divisions,base_no,mid_no,apex_no):
-    # range of index is a list in the form of range(start,end+1)
-    # to find base,mid and apex
-    gap = (range_of_index[-1] - range_of_index[0] ) / num_of_divisions
-    base = math.floor(((gap * base_no) ) + range_of_index[0])
-    mid = math.floor(((gap * mid_no) ) + range_of_index[0])
-    apex = math.floor(((gap * apex_no) ) + range_of_index[0])
-    return base,mid,apex
-
-# funciton: resample a SAX stack with n planes into a particular num of planes
-# will return the indexes as well as the centerpoint_list
-def resample_SAX_stack_into_particular_num_of_planes(range_of_index,num_of_planes,center_list):
-    # range of index is a list in the form of range(start,end+1)
-    gap = (range_of_index[-1] - range_of_index[0] ) / (num_of_planes - 1)
-    assert gap >=1
-    index_list = []
-    center_list_resample = []
-    for i in range(0,num_of_planes):
-        index = math.floor(range_of_index[0] + gap * i)
-        index_list.append(index)
-        center_list_resample.append(center_list[index,:])
-    return index_list,center_list_resample
 
 # function: define the interpolation
 def define_interpolation(data,Fill_value=0,Method='linear'):
@@ -228,24 +92,6 @@ def reslice_mpr(mpr_data,plane_center,x,y,x_s,y_s,interpolation):
     return new_mpr
 
 
-# function: find which batch a patient is belonged to:
-def locate_batch_num_for_patient(patient_class,patient_id,partition_file_path):
-    partition_list = np.load(partition_file_path,allow_pickle=True)
-    simplified_partition_list = []
-    for group in range(0,len(partition_list)):
-        l = []
-        for p in partition_list[group]:
-            p_id = os.path.basename(p)
-            p_class = os.path.basename(os.path.dirname(p))
-            l.append(((p_class,p_id)))
-        simplified_partition_list.append(l)
-    answer = []
-    for group in range(0,len(simplified_partition_list)):
-        for i in simplified_partition_list[group]:
-            if i == (patient_class,patient_id):
-                answer.append(group)
-    assert len(answer) == 1
-    return answer[0]
     
 # function: check affine from all time frames (affine may have errors in some tf, that's why we need to find the mode )
 def check_affine(one_time_frame_file_name):
@@ -273,26 +119,6 @@ def convert_coordinates(target_affine, initial_affine, r):
     affine_multiply = np.linalg.inv(target_affine).dot(initial_affine)
     return apply_affine(affine_multiply,r)
 
-# function: get affine matrix from translation,x,y and scale
-def get_affine_from_vectors(mpr_data,volume_affine,vector):
-    # it answers one important question: what's [1 1 1] in the coordinate system of predicted plane in that
-    # of the whole CT volume
-    [t,x,y,s,i_center] = [vector['t'],vector['x'],vector['y'],[1,1,0.67],vector['img_center']]
-    shape = mpr_data.shape
-    mpr_center=np.array([(shape[0]-1)/2,(shape[1]-1)/2,0])
-    Transform = np.ones((4,4))
-    xx = normalize(x)*s[0]
-    yy = normalize(y)*s[1]
-    zz = normalize(np.cross(x,y))*s[-1]
-    Transform[0:3,0] = xx
-    Transform[0:3,1] = yy
-    Transform[0:3,2] = zz
-    t_o = (i_center + t) - (mpr_center[0]*xx + mpr_center[1]*yy + mpr_center[2]*zz)
-    Transform[0:3,3] = t_o
-    Transform[3,:] = np.array([0,0,0,1])
-    mpr_A = np.dot(volume_affine,Transform)
-    return mpr_A
-
 # function: find all files under the name * in the main folder, put them into a file list
 def find_all_target_files(target_file_name,main_folder):
     F = np.array([])
@@ -301,63 +127,6 @@ def find_all_target_files(target_file_name,main_folder):
         F = np.concatenate((F,f))
     return F
 
-# function: color box addition
-def color_box(image,y_range = 10, x_range = 20):
-    [sx,sy] = [image.shape[0],image.shape[1]]
-    new_image = np.ones((sx,sy))
-    for i in range(sx):
-        for j in range(sy):
-            new_image[i,j] = image[i,j]
-    for j in range(sy-y_range,sy):
-        for i in range(sx-x_range,sx):
-            new_image[i,j] = new_image.max()
-    return new_image
-
-# function: draw an arbitrary axis on one image 
-def draw_arbitrary_axis(image,axis,start_point,length = 500):
-    '''length defines how long the axis we want to draw'''
-    assert abs(axis[-1]) == 0.0 
-    assert abs(start_point[-1]) == 0.0
-    
-    result = np.zeros((image.shape[0],image.shape[1],1))
-    for ii in range(0,image.shape[0]):
-        for jj in range(0,image.shape[1]):
-            
-            result[ii,jj,0] = image[ii,jj,0]
-
-    axis = normalize(axis)
-  
-    for i in range(-length,length):
-        [x,y] = [start_point[0] + axis[0]*i , start_point[1] + axis[1]*i]
-        if x>=0 and y>=0 and x<result.shape[0] and y<result.shape[1]:
-            
-            result[int(x),int(y),0] = result.max()
-    return result
-
-# function: draw the intersection of two mpr planes on one plane (draw the intersection of plane 1 and 2 on plane 2)
-def draw_plane_intersection(plane2_image,plane1_x,plane1_y,plane1_affine,plane2_affine,volume_affine):
-    '''plane 2 is the plane in which we want to draw axis'''
-    real_x = convert_coordinates(plane2_affine,volume_affine,np.array([1,1,1]+plane1_x)) - convert_coordinates(plane2_affine,volume_affine,np.array([1,1,1]))
-    real_y = convert_coordinates(plane2_affine,volume_affine,np.array([1,1,1]+plane1_y)) - convert_coordinates(plane2_affine,volume_affine,np.array([1,1,1]))
-    
-    n1 = np.cross(real_x,real_y)
-    n2 = np.array([0,0,1])
-    intersect_direct = (0.5/(np.cross(n1,n2)[0])) * np.cross(n1,n2)
-    
-    # find one point in the intersection line
-    # a plane is defined as <a,b,c> . <x-x0,y-y0,z-z0> = 0
-    # ax+by+cz+(-ax0-by0-cz0) = ax+by+cz+d = 0
-    # let's find one (x0,y0,z0) on the 2C plane
-    
-    plane1_p = convert_coordinates(plane2_affine,plane1_affine,np.array([150,100,0]))
-    p = convert_coordinates(plane2_affine,plane1_affine,np.array([40,40,0]))
-    d1 = -n1[0]*plane1_p[0] - n1[1]*plane1_p[1] - n1[2]*plane1_p[2]   
-    d2 = 0
-    u = np.cross(n1,n2)
-    u_length = math.sqrt(u[0]**2+u[1]**2+u[2]**2)
-    intersect_point = np.cross((d2*n1-d1*n2),u)/(u_length**2)
-    result_line = draw_arbitrary_axis(plane2_image,intersect_direct,intersect_point)
-    return result_line,intersect_direct,intersect_point
 
 # function: count pixel in the image/segmentatio that belongs to one label
 def count_pixel(seg,target_val):
@@ -432,43 +201,6 @@ def set_window(image,level,width):
             new[i,j] = norm
     return new
 
-# function: find aha segments vectors from two RV insertion points and the LV center
-def find_aha_segments(c,i12,i34):
-    '''c,i12 and i34 are coordinates of LV center and two RV insertion points saved in numpy file.
-    this function can then use saved information to get the vectors (v12 to v61) representing 6 AHA segments in MID plane'''
-    v12 = normalize(i12 - c)
-    v34 = normalize(i34 - c)
-    
-    septum_angle = math.acos(dotproduct(v12, v34) / (length(v12) * length(v34)))/2
-    lateral_angle =  (2*math.pi - septum_angle*2) / 4
-
-    v61 = np.dot(np.array([[math.cos(lateral_angle),-math.sin(lateral_angle)],[math.sin(lateral_angle),math.cos(lateral_angle)]]),np.array([[v12[0]],[v12[-1]]])).reshape(2,)
-    v56 = np.dot(np.array([[math.cos(lateral_angle),-math.sin(lateral_angle)],[math.sin(lateral_angle),math.cos(lateral_angle)]]),np.array([[v61[0]],[v61[-1]]])).reshape(2,)
-    v45 = np.dot(np.array([[math.cos(lateral_angle),-math.sin(lateral_angle)],[math.sin(lateral_angle),math.cos(lateral_angle)]]),np.array([[v56[0]],[v56[-1]]])).reshape(2,)
-    v34 = np.dot(np.array([[math.cos(lateral_angle),-math.sin(lateral_angle)],[math.sin(lateral_angle),math.cos(lateral_angle)]]),np.array([[v45[0]],[v45[-1]]])).reshape(2,)
-    v23 = np.dot(np.array([[math.cos(septum_angle),-math.sin(septum_angle)],[math.sin(septum_angle),math.cos(septum_angle)]]),np.array([[v34[0]],[v34[-1]]])).reshape(2,)
-    
-    v61 = np.array([v61[0],v61[1],0]);v12 = np.array([v12[0],v12[1],0]);v23 = np.array([v23[0],v23[1],0]);v34 = np.array([v34[0],v34[1],0]);v45 = np.array([v45[0],v45[1],0]);v56 = np.array([v56[0],v56[1],0])
-    result = np.array([v12,v23,v34,v45,v56,v61])
-    return result
-
-# function: draw aha segments on the MID
-def draw_aha_segments(image,AHA_axis,LV_center):
-    result = np.copy(image)
-    # load 6 vectors for segments from axis
-    vectors = []
-    for a in AHA_axis:
-        vectors.append(normalize(a))
-    c = np.array([LV_center[0],LV_center[1],0])
-    
-    # draw lines
-    for v in vectors:
-        for i in range(0,50):
-            [x,y] = [c[0] + v[0]*i , c[1] + v[1]*i]
-            if x>0 and y>0 and x <image.shape[0] and y <image.shape[1]:
-                result[int(x),int(y),0] = result.max() 
-    return result
-
 # function: upsample image
 def upsample_images(image,up_size = 1):
     # in case it's 2D image
@@ -521,47 +253,6 @@ def make_movies(save_path,pngs,fps):
         out.write(mpr_array[j])
     out.release()
 
-# function: calculate SNR and CNR
-def check_SNR(image,xrange,yrange,calculate_type = 'SNR'):
-    assert len(image.shape) == 2
-    assert len(xrange) == 2
-    assert len(yrange) == 2
-    
-    x_range = np.arange(xrange[0],xrange[1],1)
-    y_range = np.arange(yrange[0],yrange[1],1)
-    xgrid,ygrid = np.meshgrid(x_range,y_range)
-    intensity_list = []
-    for i in range(0,xgrid.shape[0]):
-        for j in range(0,xgrid.shape[1]):
-            intensity_list.append(image[xgrid[i,j],ygrid[i,j]])
-    intensity_list = np.asarray(intensity_list)
-    [peak,bottom,mean,std] = [np.max(intensity_list),np.min(intensity_list),np.mean(intensity_list),np.std(intensity_list)]
-    info = [peak,bottom,mean,std]
-    if calculate_type == 'SNR':
-        ans = peak / std
-    elif calculate_type == 'CNR':
-        ans = (peak - bottom) / std
-    else:
-        raise ValueError("Wrong calculate type")
-    return ans,info  
-
-# function: obtain the linear profile in 2D image
-def linear_profile(image,start,end):
-    start = np.asarray(start)
-    end = np.asarray(end)
-    vector = normalize(end - start)
-    profile = []
-    count = 1
-    while 1 == 1:
-        point = (start + vector * (count - 1))
-        profile.append(image[int(point[0]),int(point[1])])
-        if (point[0]>end[0] and vector[0] >=0) or (point[0]<end[0] and vector[0] <0):
-            if (point[1]>end[1] and vector[1] >=0) or (point[1]<end[1] and vector[1] <0):
-                break
-        count += 1
-    profile = np.asarray(profile)
-    pixel_list = np.arange(1,count+1,1)
-    return profile,pixel_list
 
 # function: read DicomDataset to obtain parameter values (not image)
 def read_DicomDataset(dataset,elements):
