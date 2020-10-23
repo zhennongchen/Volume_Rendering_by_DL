@@ -2,6 +2,164 @@
 clear all;
 addpath('/Users/zhennongchen/Documents/GitHub/Volume_Rendering_by_DL/matlab/nii_image_load');
 addpath('/Users/zhennongchen/Documents/GitHub/Volume_Rendering_by_DL/matlab/functions');
-%% Load the patient list
-year = '2019';
-[~,~,data] = xlsread(['/Users/zhennongchen/Documents/Zhennong_CT_Data/Patient_Overview/',year,'_Patient_Radiology_Records_Function.csv']);
+%% Load the patient table
+year = '2017';
+filename = ['/Users/zhennongchen/Documents/Zhennong_CT_Data/Patient_Overview/',year,'_Patient_Radiology_Records_Function_no_report.csv'];
+
+T = readtable(filename);
+column_list = T.Properties.VariableNames;
+%% load the patient image and measure
+main_folder = ['/Volumes/McVeighLab/dicom_images/',year,'/'];
+
+quality_check_list = struct([]);
+for i = [1,5,1]
+    patient_id = T.Patient_ID{i};
+    disp([patient_id,' index = ',num2str(i)])
+    
+    if all(T.Dicom_{i}(1:2) == 'No') == 1
+        disp(['no dicom image for this patient'])
+        continue
+    end
+    
+    
+    
+    function_folder = strsplit(T.Directories_Function{i},', ');
+    if size(function_folder,2) ~= T.Timeframes(i)
+        error('wrong split of function folders')
+    end
+    
+    % pick one time frame starts from 3rd (avoid the folder with all
+    % timeframes)
+    tf = 3;
+    tic
+    while 1 == 1
+        tf_folder = function_folder(tf); 
+        tf_folder = Remove_prefix_suffix_in_string(tf_folder{1},[]);
+        %
+        dicom_files=dir([main_folder,patient_id,'/',tf_folder,'/','*.dcm']);
+        if size(dicom_files,1) ~= 0
+            disp(tf)
+            break
+        end
+        if tf == T.Timeframes(i)
+            disp('no dicom')
+            break
+        end
+        tf = tf + 1;
+    end
+    toc
+    
+    % find the middle slice
+    slice_num = round(size(dicom_files,1)/2);
+    file_name = dicom_files(slice_num).name;
+    file_name = [main_folder,patient_id,'/',tf_folder,'/',file_name];
+    info=dicominfo(file_name);
+    img = double(dicomread(file_name));
+    img = info.RescaleSlope.*img + info.RescaleIntercept;
+   
+    % plot figure and make graphy input
+    f1 = figure();
+    imagesc(img); hold on
+    axis equal;  colormap gray
+    title('click one point in LV')
+    [yp,xp] = ginput(1); 
+    yp = round(yp); xp = round(xp);
+    close(f1)
+    % make a circular ROI 
+    roi = [];
+    for r1 = -30:30
+        for r2 = -30:30
+            if round(sqrt(sum(([xp+r1,yp+r2]-[xp,yp]).^2))) == 20
+                roi = [roi;xp+r1,yp+r2];
+            end
+        end
+    end
+    
+    % calculate the mean and std
+    roi_index = sub2ind(size(img),roi(:,1),roi(:,2));
+    I = img(roi_index');
+    LV_mean = mean(I(:));
+    LV_std = std(I(:));
+    LV_snr = max(I(:))/LV_std;
+    
+    % plot ROI and click whether the quality is good
+    figure(2)
+    set(gcf,'Position',[100,100,900,900])
+    subplot(2,2,1)
+    imagesc(img); colormap gray;hold on
+    plot(yp,xp,'marker','o','MarkerFaceColor','b','MarkerSize',5)
+    hold on
+    scatter(roi(:,2),roi(:,1),1,'r','filled')
+    title(['mean: ',num2str(round(LV_mean)),' std: ',num2str(round(LV_std)),' SNR: ',num2str(LV_snr)],'FontSize',12)
+    
+    subplot(2,2,2)
+    fn = dicom_files(slice_num-1).name;
+    fn = [main_folder,patient_id,'/',tf_folder,'/',fn];
+    img2 = double(dicomread(fn));
+    img2 = info.RescaleSlope.*img2 + info.RescaleIntercept;
+    imagesc(img2); colormap gray;hold on
+    plot(yp,xp,'marker','o','MarkerFaceColor','b','MarkerSize',5)
+    hold on
+    scatter(roi(:,2),roi(:,1),1,'r','filled')
+    title(['slice n-1'])
+    
+    subplot(2,2,3)
+    fn = dicom_files(slice_num+1).name;
+    fn = [main_folder,patient_id,'/',tf_folder,'/',fn];
+    img3 = double(dicomread(fn));
+    img3 = info.RescaleSlope.*img3 + info.RescaleIntercept;
+    imagesc(img3); colormap gray;hold on
+    plot(yp,xp,'marker','o','MarkerFaceColor','b','MarkerSize',5)
+    hold on
+    scatter(roi(:,2),roi(:,1),1,'r','filled')
+    title(['slice n+1'])
+    
+    % define image quality
+    subplot(2,2,4)
+    a = zeros(size(img));
+    for w = (round(size(img,1))/2 - 70) : (round(size(img,1))/2 + 70)
+        for h = (round(size(img,2))/2 - 70) : (round(size(img,2))/2 + 70)
+            a(w,h) = 1;
+        end
+    end
+    imagesc(a)
+    title(['click inside the yellow box for bad quality'])
+    [yp,xp] = ginput(1); 
+    yp = round(yp); xp = round(xp);
+    if a(xp,yp) == 1
+        quality = 0;
+    else
+        quality = 1;
+    end
+    
+    
+    
+    
+    % put the results into list
+    if size(quality_check_list,2) == 0
+        patient_no = 1;
+    else
+        already_record = 0;
+        for ii = 1:size(quality_check_list,2)
+            if quality_check_list(ii).patient_id == patient_id
+                already_record = 1;
+                patient_no = 1;
+                break
+            end
+        end
+        if already_record == 0
+            patient_no = size(quality_check_list,2) + 1;
+        end
+    end
+    disp(patient_no)
+    quality_check_list(patient_no).patient_id = patient_id;
+    quality_check_list(patient_no).LV_mean = LV_mean;
+    quality_check_list(patient_no).LV_std = LV_std;
+    quality_check_list(patient_no).LV_SNR = LV_snr;
+    quality_check_list(patient_no).quality = quality;
+    
+    pause(2)
+    close all
+    end
+
+%%
