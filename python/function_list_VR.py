@@ -20,6 +20,14 @@ def make_folder(folder_list):
     for i in folder_list:
         os.makedirs(i,exist_ok = True)
 
+# function: find all files under the name * in the main folder, put them into a file list
+def find_all_target_files(target_file_name,main_folder):
+    F = np.array([])
+    for i in target_file_name:
+        f = np.array(sorted(gb.glob(os.path.join(main_folder, os.path.normpath(i)))))
+        F = np.concatenate((F,f))
+    return F
+
 # function: multiple slice view
 def show_slices(slices,colormap = "gray",origin_point = "lower"):
     """ Function to display row of image slices """
@@ -63,6 +71,12 @@ def project_onto_plane(u,n):
     '''n is the normal vector of the plane'''
     n = normalize(n)
     return (u - dotproduct(u,n) * n)
+
+# function: get pixel dimensions
+def get_voxel_size(nii_file_name):
+    ii = nib.load(nii_file_name)
+    h = ii.header
+    return h.get_zooms()
 
 # function: turn normalized vector into pixel unit
 def turn_to_pixel(vec,size=[160,160,96]):
@@ -118,14 +132,6 @@ def check_affine(one_time_frame_file_name):
 def convert_coordinates(target_affine, initial_affine, r):
     affine_multiply = np.linalg.inv(target_affine).dot(initial_affine)
     return apply_affine(affine_multiply,r)
-
-# function: find all files under the name * in the main folder, put them into a file list
-def find_all_target_files(target_file_name,main_folder):
-    F = np.array([])
-    for i in target_file_name:
-        f = np.array(sorted(gb.glob(os.path.join(main_folder, os.path.normpath(i)))))
-        F = np.concatenate((F,f))
-    return F
 
 
 # function: count pixel in the image/segmentatio that belongs to one label
