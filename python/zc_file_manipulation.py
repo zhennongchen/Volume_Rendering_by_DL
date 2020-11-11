@@ -13,7 +13,7 @@ import pandas as pd
 #### copy files
 main_folder = '/Data/McVeighLabSuper/wip/zhennong/'
 
-patient_list = ff.find_all_target_files(['*/*/img-nii-0.625'],os.path.join(main_folder,'nii-images'))
+patient_list = ff.find_all_target_files(['Abnormal/*/img-nii-0.625'],os.path.join(main_folder,'nii-images'))
 save_folder = os.path.join(main_folder,'upsample-nii-images')
 
 for p in patient_list:
@@ -24,6 +24,7 @@ for p in patient_list:
 
     img_list = ff.find_all_target_files(['*.nii.gz'],p)
     for i in img_list:
+        print(os.path.basename(i))
         if os.path.isfile(os.path.join(save_folder,patient_class,patient_id,'img-nii-0.625',os.path.basename(i))) != 1:
             shutil.copy(i,os.path.join(save_folder,patient_class,patient_id,'img-nii-0.625',os.path.basename(i)))
         else:
@@ -53,8 +54,8 @@ for p in patient_list:
 #         shutil.rmtree(os.path.join(main_folder,'Abnormal',p))
 
 ##### count
-a = ff.find_all_target_files(['Abnormal/*'],os.path.join(main_folder,'nii-images'))
-b = ff.find_all_target_files(['Normal/*'],os.path.join(main_folder,'nii-images'))
-c = ff.find_all_target_files(['Suspicious/*'],os.path.join(main_folder,'nii-images'))
+# a = ff.find_all_target_files(['Abnormal/*'],os.path.join(main_folder,'nii-images'))
+# b = ff.find_all_target_files(['Normal/*'],os.path.join(main_folder,'nii-images'))
+# c = ff.find_all_target_files(['Suspicious/*'],os.path.join(main_folder,'nii-images'))
 
-print(len(a),len(b),len(c))
+# print(len(a),len(b),len(c))

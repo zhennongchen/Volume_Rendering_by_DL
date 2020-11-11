@@ -38,7 +38,7 @@ for i in range(0,len(patient_list)):
     else:
         ed_es = 'ES'
         image_list = ff.find_all_target_files(['img-nii/*'],p)
-        timeframe = int(np.floor(len(image_list) / 2.0)) - 1
+        timeframe = ff.pick_mid_time_frame(p)
     result.append([patient_class,patient_id,ed_es,timeframe,len(image_list)])
 
 df = pd.DataFrame(result,columns = ['Patient_Class','Patient_ID','ED/ES','Timeframe_picked','Total_timeframes'])

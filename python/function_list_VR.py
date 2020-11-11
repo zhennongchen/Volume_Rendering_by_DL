@@ -32,6 +32,12 @@ def find_all_target_files(target_file_name,main_folder):
         F = np.concatenate((F,f))
     return F
 
+# function: pick the mid time frame
+def pick_mid_time_frame(patient_path):
+    image_list = find_all_target_files(['img-nii/*'],patient_path)
+    return int(np.floor(len(image_list) / 2.0)) - 1
+
+
 # function: multiple slice view
 def show_slices(slices,colormap = "gray",origin_point = "lower"):
     """ Function to display row of image slices """

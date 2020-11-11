@@ -14,6 +14,10 @@ import string
 import matplotlib.pyplot as plt
 import cv2
 
+# function: minimize the line of codes when you have several list to append
+def massive_list_append(list_list,append_list):
+    assert len(list_list) == len(append_list)
+    [list_list[i].append(append_list[i]) for i in range(0,len(append_list))]
 
 # function: make folders
 def make_folder(folder_list):
@@ -27,6 +31,12 @@ def find_all_target_files(target_file_name,main_folder):
         f = np.array(sorted(gb.glob(os.path.join(main_folder, os.path.normpath(i)))))
         F = np.concatenate((F,f))
     return F
+
+# function: pick the mid time frame
+def pick_mid_time_frame(patient_path):
+    image_list = find_all_target_files(['img-nii/*'],patient_path)
+    return int(np.floor(len(image_list) / 2.0)) - 1
+
 
 # function: multiple slice view
 def show_slices(slices,colormap = "gray",origin_point = "lower"):
