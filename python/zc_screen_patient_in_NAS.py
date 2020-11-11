@@ -12,7 +12,7 @@
 
 import os
 import numpy as np
-import zc_function_list as ff
+import function_list_VR as ff
 import pandas as pd
 import pydicom
 
@@ -21,7 +21,7 @@ def assert_function_folder(folder,keywordlist):
     # this function find the function folder that contain the keyword in the keyword list.
     # default rank of keywordlist is "Earliest_to_Latest" > "CCTA/CTA" > something else
     for k in keywordlist:
-        if k in folder:
+        if k.lower() in folder.lower():
             return 1
     return 0
 
@@ -45,12 +45,13 @@ keywordlist = ['_TO_','_to_','CCTA','CTA','ccta','cta','ccta','HALF','Function',
 dicom_parameter_list = ['AccessionNumber','Manufacturer','ManufacturerModelName','StudyDescription','PatientSex','PatientAge','ProtocolName']
 
 # put each year into one excel file
-year_list = ['2017','2018','2019','2020']
+year_list = ['2019']
 
 
 for Y in year_list:
     year = ff.find_all_target_files([Y],main_path)
-    patients = ff.find_all_target_files(['AN*','CVC*','cvc*','Cvc*'],year[0])
+    #patients = ff.find_all_target_files(['AN*','CVC*','cvc*','Cvc*'],year[0])
+    patients = ff.find_all_target_files(['CVC1909*','Cvc1909*','cvc1909*'],year[0])
     
     patient_id = []
     scan_year = []
@@ -104,7 +105,7 @@ for Y in year_list:
             directories.append(D)
             directories_sub.append('')
 
-        # get dicom info
+        # get dicom info (no matter it has function study or not)
         if count >= 5:
             dicom_list = ff.find_all_target_files(['*.dcm'],os.path.join(patient,function_D_sub[0]))
             if len(dicom_list) > 0:
@@ -114,9 +115,17 @@ for Y in year_list:
             else:
                 Dicom.append('No')
                 data_list = ['']*len(dicom_parameter_list)
+
         else:
-            Dicom.append('')
-            data_list = ['']*len(dicom_parameter_list)
+            dicom_list = ff.find_all_target_files(['*/*.dcm','*/*/*.dcm'],os.path.join(patient))
+            if len(dicom_list) > 0:
+                Dicom.append('Yes')
+                read = pydicom.read_file(dicom_list[0])
+                data_list = ff.read_DicomDataset(read,dicom_parameter_list)
+            
+            else:
+                Dicom.append('No')
+                data_list = ['']*len(dicom_parameter_list)
         
         ff.massive_list_append([AccessionNumber,Manufacturer,ModelName,StudyDescription,Sex,Age,Protocol],data_list)
 
@@ -129,6 +138,7 @@ for Y in year_list:
 
     df = pd.DataFrame(data_collected)
     # write into excel file
-    df.to_excel(os.path.join(save_path,Y+'_patient_overview.xlsx'),index=False)
+    #df.to_excel(os.path.join(save_path,Y+'_patient_overview.xlsx'),index=False)
+    df.to_excel(os.path.join(save_path,'2019_Sep_missing.xlsx'),index=False)
 
 

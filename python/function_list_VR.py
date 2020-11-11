@@ -14,6 +14,10 @@ import string
 import matplotlib.pyplot as plt
 import cv2
 
+# function: minimize the line of codes when you have several list to append
+def massive_list_append(list_list,append_list):
+    assert len(list_list) == len(append_list)
+    [list_list[i].append(append_list[i]) for i in range(0,len(append_list))]
 
 # function: make folders
 def make_folder(folder_list):

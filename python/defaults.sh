@@ -1,49 +1,32 @@
-export CG_NAS="/media/McVeighLab/"
+## define parameters
+export CUDA_VISIBLE_DEVICES="0"
 
-export CG_MAIN="/media/McVeighLabSuper/projects/Zhennong/Volume_Rendering/"
-#export CG_MAIN="/Data/McVeighLabSuper/projects/Zhennong/Volume_Rendering/"
+export CG_NUM_CLASSES=4 
+export CG_RELABEL_LVOT=1
 
-#export CG_RAW_DIR_ZC="/Data/McVeighLabSuper/projects/Zhennong/AI/AI_datasets/"
-#export CG_BASE_DIR_ZC="/Data/McVeighLabSuper/projects/Zhennong/AI/CNN/" 
-export CG_RAW_DIR_ZC="/media/McVeighLabSuper/projects/Zhennong/AI/AI_datasets/"
-export CG_BASE_DIR_ZC="/media/McVeighLabSuper/projects/Zhennong/AI/CNN/" 
-
-export CG_CODE_DIR="/Experiment/Documents/Volume_Rendering_by_DL/"
-
-export CG_HYPERTUNE_DIR="${CG_BASE_DIR_ZC}hyperparameters_tuning/"
-
-export CG_OCTOMORE_DIR_ZC="/Experiment/Documents/Data"
-#export CG_OCTOMORE_DIR_ZC="/home/cnn/Documents/Data"
-
-# for resample that can only be run in octomore local terminal (in virtual environment)
-export CG_RESAMPLE_ZC="/home/cnn/Documents/Resample_Data"
-#export CG_RESAMPLE_ZC="/Experiment/Documents/Resample_Data"
-
-# other data in octomore 
-export CG_OTHER_DIR="/home/cnn/Documents/Other_data/"
-
-# parameters
-export CUDA_VISIBLE_DEVICES="1"
-
-export CG_NUM_CLASSES=10 #10 for Left-sided, 14 for Right-sided, 2 for LV only, 3 for LA + LV
-
-export CG_SPACING=1.0
-
-export CG_FEATURE_DEPTH=8
-# 8 is up to 2^8 = 256, 9 is up to 512 and 10 is up to 1024
-
-export CG_EPOCHS=50
+export CG_SPACING=1.5
 
 export CG_SEED=0
 
-export CG_LR_EPOCHS=26
-
-export CG_NUM_PARTITIONS=5
-
 export CG_BATCH_SIZE=1
 
-export CG_XY_RANGE="0.1"   #0.1
+export CG_CROP_X=160
+export CG_CROP_Y=160
+export CG_CROP_Z=96
 
-export CG_ZM_RANGE="0.1"  #0.1
+export CG_CONV_DEPTH_MULTIPLIER=1
+export CG_FEATURE_DEPTH=8
 
-export CG_RT_RANGE="10"   #15
+# enter the name of main directory
+export CG_MAIN_DIR="/Data/McVeighLabSuper/wip/zhennong/"
+
+# enter the name of directory where you save the patient data
+export CG_PATIENT_DIR="${CG_MAIN_DIR}nii-images/Abnormal/"
+
+# enter the name of folder where you save the trained deep learning model 
+export CG_MODEL_DIR="/Data/McVeighLabSuper/projects/Zhennong/AI/CNN/all-classes-all-phases-data-1.5/" 
+
+
+
+
+

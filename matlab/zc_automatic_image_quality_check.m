@@ -3,7 +3,7 @@ clear all;
 addpath('/Users/zhennongchen/Documents/GitHub/Volume_Rendering_by_DL/matlab/nii_image_load');
 addpath('/Users/zhennongchen/Documents/GitHub/Volume_Rendering_by_DL/matlab/functions');
 %% Load the patient table
-year = '2017';
+year = '2019';
 filename = ['/Users/zhennongchen/Documents/Zhennong_CT_Data/Patient_Overview/',year,'_Patient_Radiology_Records_Function_no_report.csv'];
 
 T = readtable(filename);
@@ -12,7 +12,7 @@ column_list = T.Properties.VariableNames;
 main_folder = ['/Volumes/McVeighLab/dicom_images/',year,'/'];
 
 quality_check_list = struct([]);
-for i = [5,1]
+for i = 1
     patient_id = T.Patient_ID{i};
     disp([patient_id,' index = ',num2str(i)])
     
