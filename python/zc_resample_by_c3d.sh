@@ -8,17 +8,18 @@ minus=1
 . defaults.sh
 
 # Get a list of patients.
-#patients=(/Data/McVeighLabSuper/wip/zhennong/nii-images/Abnormal/* ) 
+patients=(/Data/McVeighLabSuper/projects/Zhennong/AI/Zhennong_WMA_Movie_dataset/CVC19111*)
+#patients=(/Data/McVeighLabSuper/wip/zhennong/nii-images/Normal/* ) 
 #patients+=(/Data/McVeighLabSuper/wip/zhennong/nii-images/Normal/CVC2006300933 )
-patients=(/Data/McVeighLabSuper/wip/zhennong/predicted_seg/Normal/* ) 
-patients+=(/Data/McVeighLabSuper/wip/zhennong/predicted_seg/Abnormal/* ) 
+#patients=(/Data/McVeighLabSuper/wip/zhennong/predicted_seg/Normal/* ) 
+#patients+=(/Data/McVeighLabSuper/wip/zhennong/predicted_seg/Abnormal/* ) 
 img_or_seg=0 # 1 is image, 0 is seg
 
 if ((${img_or_seg} == 1))
 then
 img_folder="img-nii"
 else
-img_folder="seg-pred-1.5"
+img_folder="seg-manual"
 fi
 
 for p in ${patients[*]};
@@ -37,16 +38,16 @@ do
   
   if ((${img_or_seg} == 1))
   then
-  o_dir=${p}/img-nii-1.5
+  o_dir=${p}/img-nii-0.625
   else
-  o_dir=${p}/seg-pred-1.5-upsample
+  o_dir=${p}/seg-manual-1.5
   fi
 
   echo ${o_dir}
   mkdir -p ${o_dir}
   
   # calculate the length of img_list and get es time frame
-  IMGS_all=(${p}/${img_folder}/*.nii.gz)
+  IMGS_all=(${p}/${img_folder}/0.nii.gz)
   length=${#IMGS_all[@]}
   z=$((length / half)) 
   ES=$((z - minus))
@@ -68,9 +69,9 @@ do
     else
       if ((${img_or_seg} == 1))
       then
-        c3d ${i_file} -interpolation Cubic -resample-mm 1.5x1.5x1.5mm -o ${o_file}
+        c3d ${i_file} -interpolation Cubic -resample-mm 0.625x0.625x0.625mm -o ${o_file}
       else
-        c3d ${i_file} -interpolation NearestNeighbor -resample-mm 0.625x0.625x0.625mm -o ${o_file}
+        c3d ${i_file} -interpolation NearestNeighbor -resample-mm 1.5mmx1.5mmx1.5mm -o ${o_file}
       fi
     fi   
   done

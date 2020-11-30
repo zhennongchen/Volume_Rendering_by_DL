@@ -28,7 +28,7 @@ for p in patient_list:
         if os.path.isfile(os.path.join(save_folder,patient_class,patient_id,'img-nii-0.625',os.path.basename(i))) != 1:
             shutil.copy(i,os.path.join(save_folder,patient_class,patient_id,'img-nii-0.625',os.path.basename(i)))
         else:
-            print('already done')
+            print('already done',i)
 
 #################################################
 

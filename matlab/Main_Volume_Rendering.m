@@ -5,12 +5,12 @@ addpath('/Users/zhennongchen/Documents/GitHub/Volume_Rendering_by_DL/matlab/func
 addpath(genpath('/Users/zhennongchen/Documents/GitHub/Volume_Rendering_by_DL/matlab/SQUEEZ functions'));
 code_path = '/Users/zhennongchen/Documents/GitHub/Volume_Rendering_by_DL/matlab/';
 %data_path = '/Volumes/McVeighLab/projects/Zhennong/AI/CNN/all-classes-all-phases-1.5/';
-data_path = '/Volumes/McVeighLab/projects/Zhennong/Zhennong_CT_Data/';
+data_path = '/Volumes/McVeighLab/projects/Zhennong/Zhennong_VR_Data/Abnormal/';
 %% Step 1: Define patient and parameters
-patient = 'CVC1910100933';
+patient = 'CVC1809171438';
 MN_or_DL = 'MN'; % MN = manual segmentation, DL = deep learning segmentation
 
-save_path = ['/Users/zhennongchen/Documents/Zhennong_CT_Data/VR_dataset/',patient];
+save_path = ['/Users/zhennongchen/Documents/Zhennong_CT_Data/VR_dataset/examples/',patient];
 
 image_folder_high = 'img-nii';image_folder_low = 'img-nii-1.5';
 seg_folder_high = 'seg-nii';seg_folder_low = 'seg-nii-1.5';
@@ -29,8 +29,8 @@ clear s n
 
 % parameters for movie making
 load([code_path,'config_image.mat']);
-save_movie_path = [save_path,'/Volume_Rendering_Movie']; mkdir(save_movie_path);
-view_angle = [0:60:350];
+save_movie_path = [save_path,'/Volume_Rendering_Movie_examples']; mkdir(save_movie_path);
+view_angle = [0];
 position = config_image.CameraPosition';
 scale = [1,1,1];
 
@@ -90,7 +90,7 @@ if isfile([save_path,'/',patient,'_thresholding.mat']) == 1
     load([save_path,'/',patient,'_thresholding.mat'])
 else
 WL = Set_WindowLevel_Based_on_CenterIntensityProfile(Data(1).image,Data(1).seg,5,decrease);
-WW = 100;
+WW = 150;
 save([save_path,'/',patient,'_thresholding.mat'],'WW','WL');
 fid = fopen([save_path,'/',patient,'_thresholding.txt'],'wt');
 fprintf(fid, [num2str(WL),'\n',num2str(WW)]);
