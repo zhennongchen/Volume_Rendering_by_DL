@@ -8,18 +8,18 @@ minus=1
 . defaults.sh
 
 # Get a list of patients.
-patients=(/Data/McVeighLabSuper/projects/Zhennong/AI/Zhennong_WMA_Movie_dataset/CVC19111*)
 #patients=(/Data/McVeighLabSuper/wip/zhennong/nii-images/Normal/* ) 
-#patients+=(/Data/McVeighLabSuper/wip/zhennong/nii-images/Normal/CVC2006300933 )
-#patients=(/Data/McVeighLabSuper/wip/zhennong/predicted_seg/Normal/* ) 
-#patients+=(/Data/McVeighLabSuper/wip/zhennong/predicted_seg/Abnormal/* ) 
+#patients=(/Data/McVeighLabSuper/wip/zhennong/nii-images/Abnormal/*)
+#patients+=(/Data/McVeighLabSuper/wip/zhennong/nii-images/Normal/* )
+#patients+=(/Data/McVeighLabSuper/wip/zhennong/predicted_seg/Abnormal/CVC1802161049 ) 
+patients=(/Data/McVeighLabSuper/wip/zhennong/top_100/Abnormal/* ) 
 img_or_seg=0 # 1 is image, 0 is seg
 
 if ((${img_or_seg} == 1))
 then
 img_folder="img-nii"
 else
-img_folder="seg-manual"
+img_folder="seg-pred-0.625-4classes-connected-retouch"
 fi
 
 for p in ${patients[*]};
@@ -27,7 +27,11 @@ do
 
 # Print the current patient.
   echo ${p} 
-  
+  patient_id=$(basename ${p})
+  patient_class=$(basename $(dirname ${p}))
+  p=/Data/McVeighLabSuper/wip/zhennong/predicted_seg/${patient_class}/${patient_id}
+  echo ${p}
+
   # assert whether dcm image exists
   if ! [ -d ${p}/${img_folder} ] || ! [ "$(ls -A  ${p}/${img_folder})" ];then
     echo "no image/seg"
@@ -38,9 +42,9 @@ do
   
   if ((${img_or_seg} == 1))
   then
-  o_dir=${p}/img-nii-0.625
+  o_dir=/Data/McVeighLabSuper/wip/zhennong/downsample-nii-images-2mm/$(basename $(dirname ${p}))/$(basename ${p})/img-nii-2
   else
-  o_dir=${p}/seg-manual-1.5
+  o_dir=${p}/seg-pred-0.625-4classes-connected-retouch-downsample
   fi
 
   echo ${o_dir}
@@ -69,9 +73,9 @@ do
     else
       if ((${img_or_seg} == 1))
       then
-        c3d ${i_file} -interpolation Cubic -resample-mm 0.625x0.625x0.625mm -o ${o_file}
+        c3d ${i_file} -interpolation Cubic -resample-mm 2x2x2mm -o ${o_file}
       else
-        c3d ${i_file} -interpolation NearestNeighbor -resample-mm 1.5mmx1.5mmx1.5mm -o ${o_file}
+        c3d ${i_file} -interpolation NearestNeighbor -resample-mm 2x2x2mm -o ${o_file}
       fi
     fi   
   done

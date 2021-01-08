@@ -1,0 +1,52 @@
+%% Description:
+% this script finds the rotation angles that requires to orient the data.
+% it will save angles as a mat file 
+%% add functino path
+clear all;
+code_path = '/Users/zhennongchen/Documents/GitHub/Volume_Rendering_by_DL/matlab/';
+addpath(genpath(code_path));
+%% 
+abnormal_patient_list = Find_all_folders('/Volumes/Seagate MacOS/top_100/Abnormal');
+class_list = []; id_list = [];
+for i = 1:size(abnormal_patient_list,1)
+    class = split(abnormal_patient_list(i).folder,'/');
+    class = class(end); class = class{1};
+    class_list = [class_list;class];
+    id_list = [id_list;convertCharsToStrings(abnormal_patient_list(i).name)];
+end
+%% Define patient and load data
+main_path = '/Volumes/Seagate MacOS/';
+for num = 1:size(id_list,1)
+
+    patient_class = class_list(num,:);
+    patient_id = convertStringsToChars(id_list(num));
+    disp(patient_id)
+    save_file = [main_path,'/SQUEEZ_results/',patient_class,'/',patient_id,'/rot_angle_2mm.mat'];
+    if isfile(save_file) == 1
+        disp('already done')
+        continue
+    end
+    % image:
+    image_path = [main_path,'/downsample-nii-images-2mm/',patient_class,'/',patient_id,'/img-nii-2/0.nii.gz'];
+    if isfile(image_path) == 0
+        error('no image, end the process');
+    end
+    image_data = load_nii(image_path);
+    image = Transform_nii_to_dcm_coordinate(double(image_data.img),0);
+    
+    % seg:
+    seg_path = [main_path,'/predicted_seg/',patient_class,'/',patient_id,'/seg-pred-0.625-4classes-connected-retouch-downsample/pred_s_0.nii.gz'];
+     if isfile(seg_path) == 0
+        error('no image, end the process');
+    end
+    seg_data = load_nii(seg_path);
+    seg = Transform_nii_to_dcm_coordinate(double(seg_data.img),0);
+    
+    %
+    [rot,Irot,segrot] = Rotate_LV_Correct_Orientation(image,seg,0,0);
+    %
+    
+    [save_folder,~,~] = fileparts(save_file);
+    mkdir(save_folder)
+    save(save_file,'rot')
+end

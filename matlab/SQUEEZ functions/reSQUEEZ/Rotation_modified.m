@@ -26,7 +26,7 @@ for j = info.timeframes
     if info.already_rotated == 1
         for ii = 1:size(Mesh(j).CPD,1)
             if all(isnan(Mesh(j).CPD(ii,:))) ~= 1
-                equal = Mesh(j).CPD(ii,:) == Mesh(j).rotated_verts(ii,:);
+                equal = round(Mesh(j).CPD(ii,:),2) == round(Mesh(j).rotated_verts(ii,:),2);
                 if all(equal)~= 1
                     error('0 degree Rotation changes the data')
                 end

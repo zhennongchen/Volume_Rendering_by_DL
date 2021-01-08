@@ -1,4 +1,6 @@
 function [R,M] = Rotation_Matrix_From_Three_Axis(rot_x,rot_y,rot_z,degree)
+% this script sets the rotation matrix R and M given the rotation angle in
+% three axes
 
 if degree == 1
 rot_x = rot_x / 180 * pi;

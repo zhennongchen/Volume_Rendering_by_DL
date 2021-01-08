@@ -36,7 +36,7 @@ for j = 1:length(info.timeframes) % Time frame loop
     end
     
     % Calculating LV volumes in ml as a function of time
-    info.vol(info.timeframes(j)) = ((info.iso_res^3)*length(find(Data(info.timeframes(j)).seg==1)))/1000;
+    info.vol(info.timeframes(j)) = ((info.iso_res^3)*length(find(seg==1)))/1000;
     
     if info.fill_paps
         % Extracting only LV
@@ -316,17 +316,19 @@ for j = 1:length(info.timeframes) % Time frame loop
     end
     
     % plot
-    figure('pos',[10 10 1200 1200]);
-    patch('Faces',Mesh(info.timeframes(j)).faces,'Vertices',Mesh(info.timeframes(j)).vertices,'FaceColor','red');%,'EdgeColor','none');
-    ax = gca; ax.FontSize = 20; ax.FontWeight = 'bold';
-    daspect([1,1,1]); view(0,0); camlight; lighting gouraud;
-    title(['Mesh for timeframe ',num2str(info.timeframes(j))],'FontSize',35); ylim(info.ylim); xlim(info.xlim); zlim(info.zlim);
-    xlabel('x')
-    ylabel('y')
-    zlabel('z')
+    if info.timeframes(j) == 1
+        figure('pos',[10 10 1200 1200]);
+        patch('Faces',Mesh(info.timeframes(j)).faces,'Vertices',Mesh(info.timeframes(j)).vertices,'FaceColor','red');%,'EdgeColor','none');
+        ax = gca; ax.FontSize = 20; ax.FontWeight = 'bold';
+        daspect([1,1,1]); view(0,0); camlight; lighting gouraud;
+        title(['Mesh for timeframe ',num2str(info.timeframes(j))],'FontSize',35); ylim(info.ylim); xlim(info.xlim); zlim(info.zlim);
+        xlabel('x')
+        ylabel('y')
+        zlabel('z')
+    end
     
     clearvars -except info Mesh j Data
-    disp(['Done with time frame ',num2str(info.timeframes(j))])
+    %disp(['Done with time frame ',num2str(info.timeframes(j))])
     
 end
 

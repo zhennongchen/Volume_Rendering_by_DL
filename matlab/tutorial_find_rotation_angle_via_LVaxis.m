@@ -82,39 +82,14 @@ config_rot.CameraPosition = new_position';
 figure()
 volshow(seg_rot,config_rot,'ScaleFactors',scale);
 
-%% rotation test
-rot_x = 0;
-rot_y = 0;
-rot_z = 45;
-[R,M] = Rotation_Matrix_From_Three_Axis(rot_x,rot_y,rot_z);
-R_form = affine3d(M);
-seg_test = imwarp(seg,R_form);
-image_test = imwarp(image,R_form);
-%%
-center1 = size(seg)' / 2;
-center2 = size(seg_test)'/2;
-p = [24,58,70]';
-so = R' * (p-center1)+center2;
-sso = New_Position_In_Transformed_Image(p,R,size(seg),size(seg_test));
-%%
-figure()
-imagesc(image(:,:,70));
-hold on
-plot(p(1),p(2),'rx')
-axis equal
-%%
-figure()
-imagesc(image_test(:,:,70));
-hold on
-axis equal
-plot(round(sso(1)),round(sso(2)),'rx')
-%%
-p = [100,100,50];
-disp(image(p(1),p(2),p(3)))
-pp = Apply_Transformation_On_Point(M,p);
-disp(image_test(pp(1),pp(2),pp(3)));
-%%
-[M_center] = Transform_Offset_Center(M,size(image));
-R_form_center = affine3d(M_center');
-image_test_center = imwarp(image,R_form_center);
+
+% %%
+% p = [100,100,50];
+% disp(image(p(1),p(2),p(3)))
+% pp = Apply_Transformation_On_Point(M,p);
+% disp(image_test(pp(1),pp(2),pp(3)));
+% %%
+% [M_center] = Transform_Offset_Center(M,size(image));
+% R_form_center = affine3d(M_center');
+% image_test_center = imwarp(image,R_form_center);
 

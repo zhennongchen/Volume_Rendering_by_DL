@@ -11,7 +11,7 @@ image_path = [main_path,'downsample-nii-images/Abnormal/'];
 save_path = main_path;
 patient_list = Find_all_folders(image_path);
 %% select one patient
-num = 18;
+num = 39;
 patient = patient_list(num).name;
 disp(patient)
 nii_file_name = [image_path,patient,'/img-nii-1.5/0.nii.gz'];
@@ -22,8 +22,8 @@ image = Transform_nii_to_dcm_coordinate(data.img,0);
 %%%%%%%%%%%% CHANGE TO PATH WHERE MID-AXIAL SLICE IS LOCATED %%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-slice 
-IM = double(image(:,:,round(size(image,3)/2)));
+slice = round(size(image,3)/2);
+IM = double(image(:,:,slice));
 [x,y]=size(IM);
 
 %%%%%%%%%%%% Draw boundary around Myocardium + LV blood pool %%%%%%%%%%%%
