@@ -4,7 +4,7 @@ code_path = '/Users/zhennongchen/Documents/GitHub/Volume_Rendering_by_DL/matlab'
 addpath('/Users/zhennongchen/Documents/GitHub/Volume_Rendering_by_DL/matlab/nii_image_load')
 addpath('/Users/zhennongchen/Documents/GitHub/Volume_Rendering_by_DL/matlab/functions')
 %% load nii image
-nii_file_name = '/Users/zhennongchen/Documents/Zhennong_VR/Data/028/img-nii-sm-1.5/0.nii.gz';
+nii_file_name = '/Users/zhennongchen/Documents/Zhennong_VR/Data/028/img-nii-sm/0.nii.gz';
 data = load_nii(nii_file_name);
 %% pixel spacing:
 % data.hdr can obtain the hdr dataset
@@ -19,7 +19,7 @@ nii_image = flip(nii_image,1);
 nii_image = flip(nii_image,2);
 nii_image = flip(nii_image,3);
 %% obtain the image data from dicom
-dicom_folder = '/Users/zhennongchen/Documents/Zhennong_VR/Data/028/img-dcm/HALF 0% 0.73s Cardiac 0.5 CE - 2';
+dicom_folder = '/Users/zhennongchen/Documents/Zhennong_VR/Data/028/img-dcm/dicom_5375';
 dicom_files=dir([dicom_folder,'/','*.dcm']);
 cd(dicom_folder);
 
@@ -29,7 +29,7 @@ for l=1:numel(dicom_files)
     img = info.RescaleSlope.*img + info.RescaleIntercept;
     dicom_image(:,:,l) = img;
 end
-%dicom_image = double(dicom_image);
+dicom_image = double(dicom_image);
 
 pixel_size=[];
 for l=1:numel(dicom_files)
@@ -54,7 +54,7 @@ imshow(nii_image_slice);
 figure(4)
 imshow(dicom_image_slice);
 %% load nii segmentation
-seg_file_name = '/Users/zhennongchen/Documents/Zhennong_VR/Data/CVC1805021118/seg-nii/0.nii.gz';
+seg_file_name = '/Users/zhennongchen/Documents/Zhennong_VR/Data/CVC1805021118/seg-nii-sm/0.nii.gz';
 seg = load_nii(seg_file_name);
 
 

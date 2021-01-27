@@ -1,4 +1,4 @@
-function Mesh = AHA(Mesh,info)
+function [Mesh,info] = AHA_modified(Mesh,info)
 
 fig1 = figure('pos',[10 10 2400 1800]);
 fig2 = figure('pos',[10 10 2400 1800]);
@@ -17,14 +17,25 @@ for j = info.timeframes
     data = Mesh(j).Polar_Data;
     data_err = Mesh(j).Polar_Data_err;
     
+    if info.patient_class == 'Normal'
+        info.down(j) = round((numel(data) - info.lvot_limit(j) + 1) * 0.1) + 1;
+    else
+        info.down(j) = round((numel(data) - info.lvot_limit(j) + 1) * 0.1);
+        if info.down(j) < 1
+            info.down(j) = 1;
+        end
+    end
+    
+    info.lvot_limit_down(j) = info.lvot_limit(j) + info.down(j);
+
     %Defining basal, mid, and apical chunk lengths
-    chunks = round((numel(data) - info.lvot_limit(j) + 1)/3);
+    chunks = round((numel(data) - info.lvot_limit_down(j) + 1)/3);
     
     
     %Defining basal, mid, and apical slices
-    list = {info.lvot_limit(j):info.lvot_limit(j) + chunks-1,
-        info.lvot_limit(j) + chunks:info.lvot_limit(j) + 2*chunks - 1,
-        info.lvot_limit(j) + 2*chunks:numel(data)};
+    list = {info.lvot_limit_down(j):info.lvot_limit_down(j) + chunks-1,
+        info.lvot_limit_down(j) + chunks:info.lvot_limit_down(j) + 2*chunks - 1,
+        info.lvot_limit_down(j) + 2*chunks:numel(data)};
     
     % Basal-1, mid-2, apex-3
     for j1 = 1:3

@@ -6,7 +6,7 @@ clear all;
 code_path = '/Users/zhennongchen/Documents/GitHub/Volume_Rendering_by_DL/matlab/';
 addpath(genpath(code_path));
 %% 
-abnormal_patient_list = Find_all_folders('/Volumes/Seagate MacOS/top_100/Abnormal');
+abnormal_patient_list = Find_all_folders('/Volumes/Seagate MacOS/Patient_list/top_100/Normal');
 class_list = []; id_list = [];
 for i = 1:size(abnormal_patient_list,1)
     class = split(abnormal_patient_list(i).folder,'/');
@@ -37,13 +37,13 @@ for num = 1:size(id_list,1)
     % seg:
     seg_path = [main_path,'/predicted_seg/',patient_class,'/',patient_id,'/seg-pred-0.625-4classes-connected-retouch-downsample/pred_s_0.nii.gz'];
      if isfile(seg_path) == 0
-        error('no image, end the process');
+        error('no seg, end the process');
     end
     seg_data = load_nii(seg_path);
     seg = Transform_nii_to_dcm_coordinate(double(seg_data.img),0);
     
     %
-    [rot,Irot,segrot] = Rotate_LV_Correct_Orientation(image,seg,0,0);
+    [rot,Irot,segrot] = Obtain_Rotation_Angle_By_Clicking_Anatomical_Landmarks(image,seg);
     %
     
     [save_folder,~,~] = fileparts(save_file);

@@ -3,7 +3,7 @@ clear all; close all; clc;
 code_path = '/Users/zhennongchen/Documents/GitHub/Volume_Rendering_by_DL/matlab/';
 addpath(genpath(code_path));
 %% Find all patients
-abnormal_patient_list = Find_all_folders('/Volumes/Seagate MacOS/top_100/Abnormal');
+abnormal_patient_list = Find_all_folders('/Volumes/Seagate MacOS/Patient_list/top_100/Normal');
 class_list = []; id_list = [];
 for i = 1:size(abnormal_patient_list,1)
     class = split(abnormal_patient_list(i).folder,'/');
@@ -45,12 +45,12 @@ for num = 1:size(id_list,1)
     if isfolder(seg_folder) == 0
         error('No downsampled segmentation, end the process');
     end
-    seg_files = Sort_time_frame(Find_all_files(seg_folder));
+    seg_files = Sort_time_frame(Find_all_files(seg_folder),'_');
     for i = 1:size(seg_files,1)
         seg_data = load_nii([seg_folder,'/',convertStringsToChars(seg_files(i))]);
         Data(i).image_hdr = seg_data.hdr;
         seg = Transform_nii_to_dcm_coordinate(double(seg_data.img),0);
-        [~,~,Data(i).seg_rot] = Rotate_LV_Correct_Orientation(seg,seg,1,rot);
+        [Data(i).seg_rot] = Rotate_Volume_by_Rotation_Angles(seg,rot,0,3);
     end
     
     
@@ -282,7 +282,59 @@ end
 % lims = [1.405311336948222e+02,3.834645172773082e+02,37.149991427191020,3.296969852916519e+02,-87.914932320198390,2.950851201563467e+02];
 % 
 % [Mesh,info] = squeez_4D_movie_hires(Mesh,info,lims);
-
-%% Saving variables
-
-% save([info.save_path,info.patient,'.mat'],'Mesh','info')
+%% Make AHA plot
+for num = 3%1:size(id_list,1)
+    clear info Data Mesh
+    
+    info.main_path = '/Volumes/Seagate MacOS/';
+    info.patient_class = class_list(num,:);
+    info.patient = convertStringsToChars(id_list(num));
+    disp(info.patient)
+    rot_angle_file = [info.main_path,'/SQUEEZ_results/',info.patient_class,'/',info.patient,'/rot_angle_2mm.mat'];
+    if isfile(rot_angle_file) == 0
+        error('No pre-defined rotation angle, end the process');
+    end
+    load(rot_angle_file,'rot')
+    
+    info.save_path = [info.main_path,'/SQUEEZ_results/',info.patient_class,'/',info.patient,'/'];
+    mkdir(info.save_path)
+    info.save_num_path = [info.save_path,'/results/'];
+    mkdir(info.save_num_path)
+    
+    if isfile([info.save_num_path,'SQUEEZ_data.mat']) == 1
+        load([info.save_num_path,'SQUEEZ_data.mat'])
+    else
+        error('NO pre-calculated SQUEEZ');
+    end
+    
+    % Paths
+    info.save_path = [info.main_path,'/SQUEEZ_results/',info.patient_class,'/',info.patient,'/'];
+    mkdir(info.save_path)
+    info.save_num_path = [info.save_path,'/results/'];
+    mkdir(info.save_num_path)
+    info.save_image_path =[info.save_path,'/plots/']; 
+    mkdir(info.save_image_path)
+    info.save_movie_path =[info.save_path,'/movies/']; 
+    mkdir(info.save_movie_path)
+    
+    % aha plot
+    info.RSct_limits = [-0.5 0.1];
+    info.err_limits = [-0.1 10];
+    [Mesh,info] = AHA_modified(Mesh,info);
+    
+    % bullseye plot
+    info.polar_res = [36 10];                       %Enter desired number of points in bullseye plots in the format number [azimuthal radial]
+    info.polar_NoOfCols = 5;                        %Number of columns in bullseye plot subplot
+    info.RSct_limits = [-0.3 0.1];
+    
+    close all;
+    
+    [Mesh,info] = Bullseye_Plots_modified(Mesh,info);
+    savefig([info.save_image_path,info.patient,'_Bullseye.fig'])
+    close all;
+    figs = openfig([info.save_image_path,info.patient,'_Bullseye.fig']);
+    saveas(figs,[info.save_image_path,info.patient,'_Bullseye.jpg']);
+    close all;
+    
+    save([info.save_num_path,'SQUEEZ_low_data.mat'],'Mesh','info') 
+end

@@ -1,11 +1,24 @@
 %% add path
-clear all;
-addpath('/Users/zhennongchen/Documents/GitHub/Volume_Rendering_by_DL/matlab/nii_image_load');
-addpath('/Users/zhennongchen/Documents/GitHub/Volume_Rendering_by_DL/matlab/functions');
-addpath(genpath('/Users/zhennongchen/Documents/GitHub/Volume_Rendering_by_DL/matlab/SQUEEZ functions'));
+clear all; close all; clc;
 code_path = '/Users/zhennongchen/Documents/GitHub/Volume_Rendering_by_DL/matlab/';
-%data_path = '/Volumes/McVeighLab/projects/Zhennong/AI/CNN/all-classes-all-phases-1.5/';
-data_path = '/Volumes/McVeighLab/projects/Zhennong/Zhennong_VR_Data/Abnormal/';
+addpath(genpath(code_path));
+%% Find all patients
+abnormal_patient_list = Find_all_folders('/Volumes/Seagate MacOS/top_100/Abnormal');
+class_list = []; id_list = [];
+for i = 1:size(abnormal_patient_list,1)
+    class = split(abnormal_patient_list(i).folder,'/');
+    class = class(end); class = class{1};
+    class_list = [class_list;class];
+    id_list = [id_list;convertCharsToStrings(abnormal_patient_list(i).name)];
+end
+main_path = '/Volumes/Seagate MacOS/';
+%% Step 1: Load case
+
+num = 1;
+load([code_path,'configuration_list/config_image.mat']);
+patient_class = class_list(num,:);
+patient = convertStringsToChars(id_list(num));
+disp(patient)
 %% Step 1: Define patient and parameters
 patient = 'CVC1809171438';
 MN_or_DL = 'MN'; % MN = manual segmentation, DL = deep learning segmentation
@@ -45,7 +58,11 @@ for i = 1:size(timeframes,2)
     seg_data = load_nii([data_path,patient,'/',seg_folder_high,'/',num2str(t-1),'.nii.gz']);
     seg = Transform_nii_to_dcm_coordinate(double(seg_data.img),0);
     
+    %%%% move this after the rotation, also rotate the segmentation
+    %%%% add the feature to cut the top layers of LV
+    %%%% save both image and segmentation
     image_masked = Apply_Mask_To_Image(image,seg,[1]);
+    
     
     min_value = min(image_masked(:));
     tic
@@ -83,7 +100,8 @@ for i = 1:size(timeframes,2)
     clear II t
 end
 save([save_path,'/',patient,'_rot_image.mat'],'Image_LV');
-%% Step 2a: Dilation and threshold setting for LV mask (only if it's DL segmentation)
+%% Step 2a1: add top layer removal feature here
+%% Step 2a2: Dilation and threshold setting for LV mask (only if it's DL segmentation)
 %% Step 3: set WL and WW
 decrease = 100;
 if isfile([save_path,'/',patient,'_thresholding.mat']) == 1

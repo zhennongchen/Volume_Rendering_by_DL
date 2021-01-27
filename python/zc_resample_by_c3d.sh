@@ -12,7 +12,7 @@ minus=1
 #patients=(/Data/McVeighLabSuper/wip/zhennong/nii-images/Abnormal/*)
 #patients+=(/Data/McVeighLabSuper/wip/zhennong/nii-images/Normal/* )
 #patients+=(/Data/McVeighLabSuper/wip/zhennong/predicted_seg/Abnormal/CVC1802161049 ) 
-patients=(/Data/McVeighLabSuper/wip/zhennong/top_100/Abnormal/* ) 
+patients=(/Data/McVeighLabSuper/wip/zhennong/top_100/Normal/* ) 
 img_or_seg=0 # 1 is image, 0 is seg
 
 if ((${img_or_seg} == 1))
