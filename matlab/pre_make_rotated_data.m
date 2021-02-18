@@ -6,22 +6,29 @@ clear all;
 code_path = '/Users/zhennongchen/Documents/GitHub/Volume_Rendering_by_DL/matlab/';
 addpath(genpath(code_path));
 %% 
-abnormal_patient_list = Find_all_folders('/Volumes/Seagate MacOS/top_100/Normal');
+patient_list = Find_all_folders('/Volumes/Seagate MacOS/Patient_list/Retouched_Seg_Done/Normal/');
 class_list = []; id_list = [];
-for i = 1:size(abnormal_patient_list,1)
-    class = split(abnormal_patient_list(i).folder,'/');
+for i = 1:size(patient_list,1)
+    class = split(patient_list(i).folder,'/');
     class = class(end); class = class{1};
-    class_list = [class_list;class];
-    id_list = [id_list;convertCharsToStrings(abnormal_patient_list(i).name)];
+    class_list = [class_list;convertCharsToStrings(class)];
+    id_list = [id_list;convertCharsToStrings(patient_list(i).name)];
 end
-%%
+patient_list = Find_all_folders('/Volumes/Seagate MacOS/Patient_list/Retouched_Seg_Done/Abnormal/');
+for i = 1:size(patient_list,1)
+    class = split(patient_list(i).folder,'/');
+    class = class(end); class = class{1};
+    class_list = [class_list;convertCharsToStrings(class)];
+    id_list = [id_list;convertCharsToStrings(patient_list(i).name)];
+end
 main_path = '/Volumes/Seagate MacOS/';
 load([code_path,'configuration_list/config_default.mat'])
+%%
 for num = 1:size(class_list,1)
     clear info Image1 Image image_rot_box Seg seg_rot_box box box_for_all
     
     
-    info.patient_class = class_list(num,:);
+    info.patient_class = convertStringsToChars(class_list(num,:));
     info.patient = convertStringsToChars(id_list(num));
     disp(info.patient)
     
@@ -64,6 +71,21 @@ for num = 1:size(class_list,1)
         seg_data = load_nii(seg_path);
         seg = Transform_nii_to_dcm_coordinate(double(seg_data.img),0);
         
+        % in case image too large
+        if size(image,1) > 500 || size(image,2) > 500
+            image = image(100:size(image,1)-100,140:size(image,2)-40,:);
+            seg = seg(100:size(seg,1)-100,140:size(seg,2)-40,:);
+        end
+        if (size(image,1) >= 450 && size(image,1) <= 500) || (size(image,2) >= 450 && size(image,2) <= 500)
+            image = image(80:size(image,1)-50,100:size(image,2)-40,:);
+            seg = seg(80:size(seg,1)-50,100:size(seg,2)-40,:);
+        end
+        if size(image,3)>300
+            image = image(:,:,20:size(image,3)-20);
+            seg = seg(:,:,20:size(image,3)-20);
+        end
+            
+           
         % rotate
         tic
         [image_rot] = Rotate_Volume_by_Rotation_Angles(image,rot,1,3);
@@ -123,21 +145,3 @@ for num = 1:size(class_list,1)
     
     
 end
-%% apply bounding box uniform to all time frames
-box_list = [];
-for t = 1:size(image_file_list,1)
-    box_list = [box_list; Image(t).box];
-end
-box = [max(box_list(:,1)),  min(box_list(:,2)), max(box_list(:,3)), min(box_list(:,4)), max(box_list(:,5)), min(box_list(:,6))]; 
-
-for t = 1 : size(image_file_list,1)
-    II = Image1(t).image;
-    box_t = Image(t).box;
-    Image(t).image = II(1+box(1)-box_t(1):size(II,1)-(box_t(2)-box(2)),1+box(3)-box_t(3):size(II,2)-(box_t(4)-box(4)),1+box(5)-box_t(5):size(II,3)-(box_t(6)-box(6)));
-    clear II 
-    SS = Seg1(t).seg;
-    box_t = Seg(t).box;
-    Seg(t).seg = SS(1+box(1)-box_t(1):size(SS,1)-(box_t(2)-box(2)),1+box(3)-box_t(3):size(SS,2)-(box_t(4)-box(4)),1+box(5)-box_t(5):size(SS,3)-(box_t(6)-box(6)));
-    clear SS
-end
-

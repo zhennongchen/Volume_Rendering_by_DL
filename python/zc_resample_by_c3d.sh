@@ -8,11 +8,8 @@ minus=1
 . defaults.sh
 
 # Get a list of patients.
-#patients=(/Data/McVeighLabSuper/wip/zhennong/nii-images/Normal/* ) 
 #patients=(/Data/McVeighLabSuper/wip/zhennong/nii-images/Abnormal/*)
-#patients+=(/Data/McVeighLabSuper/wip/zhennong/nii-images/Normal/* )
-#patients+=(/Data/McVeighLabSuper/wip/zhennong/predicted_seg/Abnormal/CVC1802161049 ) 
-patients=(/Data/McVeighLabSuper/wip/zhennong/top_100/Normal/* ) 
+patients=(/Data/McVeighLabSuper/wip/zhennong/Patient_list/Retouched_Seg_Done/*/* ) 
 img_or_seg=0 # 1 is image, 0 is seg
 
 if ((${img_or_seg} == 1))
@@ -42,7 +39,7 @@ do
   
   if ((${img_or_seg} == 1))
   then
-  o_dir=/Data/McVeighLabSuper/wip/zhennong/downsample-nii-images-2mm/$(basename $(dirname ${p}))/$(basename ${p})/img-nii-2
+  o_dir=/Data/McVeighLabSuper/wip/zhennong/nii-images/$(basename $(dirname ${p}))/$(basename ${p})/img-nii-0.625
   else
   o_dir=${p}/seg-pred-0.625-4classes-connected-retouch-downsample
   fi
@@ -73,7 +70,7 @@ do
     else
       if ((${img_or_seg} == 1))
       then
-        c3d ${i_file} -interpolation Cubic -resample-mm 2x2x2mm -o ${o_file}
+        c3d ${i_file} -interpolation Cubic -resample-mm 0.625x0.625x0.625mm -o ${o_file}
       else
         c3d ${i_file} -interpolation NearestNeighbor -resample-mm 2x2x2mm -o ${o_file}
       fi

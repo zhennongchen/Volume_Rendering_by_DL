@@ -1,4 +1,4 @@
-function [Mesh,info] = AHA_modified(Mesh,info)
+function [Mesh,info] = AHA_modified(Mesh,info,save_image)
 
 fig1 = figure('pos',[10 10 2400 1800]);
 fig2 = figure('pos',[10 10 2400 1800]);
@@ -17,6 +17,8 @@ for j = info.timeframes
     data = Mesh(j).Polar_Data;
     data_err = Mesh(j).Polar_Data_err;
     
+    % to lower down the basal plane because AI cut LVOT plane higher than
+    % human
     if info.patient_class == 'Normal'
         info.down(j) = round((numel(data) - info.lvot_limit(j) + 1) * 0.1) + 1;
     else
@@ -121,9 +123,11 @@ for j3 = 1:16
     grid on; grid minor
         
 end
-s_path = info.save_image_path;
-saveas(fig1,[s_path,info.patient,'_AHA.fig'])
-saveas(fig1,[s_path,info.patient,'_AHA'],'jpg')
-saveas(fig2,[s_path,info.patient,'_AHA_ms.fig'])
-saveas(fig2,[s_path,info.patient,'_AHA_ms'],'jpg')
+if save_image == 1
+    s_path = info.save_image_path;
+    saveas(fig1,[s_path,info.patient,'_AHA.fig'])
+    saveas(fig1,[s_path,info.patient,'_AHA'],'jpg')
+    saveas(fig2,[s_path,info.patient,'_AHA_ms.fig'])
+    saveas(fig2,[s_path,info.patient,'_AHA_ms'],'jpg')
+end
 

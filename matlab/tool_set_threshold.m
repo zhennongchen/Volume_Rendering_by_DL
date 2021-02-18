@@ -7,11 +7,11 @@ addpath('/Users/zhennongchen/Documents/GitHub/Volume_Rendering_by_DL/matlab/nii_
 %%  Load all patients
 %main_path = '/Volumes/McVeighLab/projects/Zhennong/AI/AI_datasets/';
 main_path = '/Volumes/Seagate MacOS/';
-image_path = [main_path,'downsample-nii-images/Abnormal/'];
+image_path = [main_path,'downsample-nii-images-1.5mm/Normal/'];
 save_path = main_path;
 patient_list = Find_all_folders(image_path);
 %% select one patient
-num = 39;
+num = 163;
 patient = patient_list(num).name;
 disp(patient)
 nii_file_name = [image_path,patient,'/img-nii-1.5/0.nii.gz'];
@@ -57,7 +57,7 @@ THRESH = round(THRESH,-1);
 disp('Your threshold is:')
 disp(THRESH)
 
-fid = fopen([save_path,'predicted_seg/Abnormal/',patient,'/threshold.txt'], 'wt');
+fid = fopen([save_path,'predicted_seg/Normal/',patient,'/threshold.txt'], 'wt');
 
 fprintf(fid, '%d', THRESH);
 
