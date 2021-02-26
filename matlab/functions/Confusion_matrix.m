@@ -1,13 +1,13 @@
 function [sensitivity,specificity,precision,true_positive,true_negative,false_positive,false_negative,result] = Confusion_matrix(val_list,cutoff,larger)
 
-% data is a list in which each row is [value,class]
+% val_list is a list in which each row is [value,class]
 % larger = 1 when value > cutoff, detect as true
 % larger = 0 when value < cutoff, detect as true
 
 
 result = [];
 for ii = 1:size(val_list,1)
-    if val_list(ii,1) > cutoff
+    if val_list(ii,1) >= cutoff
         if larger == 1
             result = [result; val_list(ii,2),1];
         else
