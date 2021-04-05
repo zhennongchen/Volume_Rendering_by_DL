@@ -187,13 +187,15 @@ def DICE(seg1,seg2,target_val):
 
 
 # function: find time frame of a file
-def find_timeframe(file,num_of_dots,signal = '/'):
+def find_timeframe(file,num_of_end_signal,start_signal = '/',end_signal = '.'):
     k = list(file)
+    num_of_dots = num_of_end_signal
+
     if num_of_dots == 1: #.png
-        num1 = [i for i, e in enumerate(k) if e == '.'][-1]
+        num1 = [i for i, e in enumerate(k) if e == end_signal][-1]
     else:
-        num1 = [i for i, e in enumerate(k) if e == '.'][-2]
-    num2 = [i for i,e in enumerate(k) if e==signal][-1]
+        num1 = [i for i, e in enumerate(k) if e == end_signal][-2]
+    num2 = [i for i,e in enumerate(k) if e== start_signal][-1]
     kk=k[num2+1:num1]
     total = 0
     for i in range(0,len(kk)):
@@ -201,11 +203,13 @@ def find_timeframe(file,num_of_dots,signal = '/'):
     return total
 
 # function: sort files based on their time frames
-def sort_timeframe(files,num_of_dots,signal = '/'):
+def sort_timeframe(files,num_of_end_signal,start_signal = '/',end_signal = '.'):
     time=[]
     time_s=[]
+    num_of_dots = num_of_end_signal
+
     for i in files:
-        a = find_timeframe(i,num_of_dots,signal)
+        a = find_timeframe(i,num_of_dots,start_signal,end_signal)
         time.append(a)
         time_s.append(a)
     time_s.sort()
@@ -215,7 +219,6 @@ def sort_timeframe(files,num_of_dots,signal = '/'):
         new_files.append(files[j])
     new_files = np.asarray(new_files)
     return new_files
-
 
 
 # function: set window level and width

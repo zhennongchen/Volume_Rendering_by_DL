@@ -14,6 +14,8 @@ class Experiment():
     self.fc_main_dir = os.environ['CG_FC_MAIN_DIR']
 
     self.local_dir = os.environ['CG_LOCAL_DIR']
+
+    self.num_partitions = int(os.environ['CG_NUM_PARTITIONS'])
   
     # Dimension of padded input, for training.
     self.dim = (int(os.environ['CG_CROP_X']), int(os.environ['CG_CROP_Y']), int(os.environ['CG_CROP_Z']))

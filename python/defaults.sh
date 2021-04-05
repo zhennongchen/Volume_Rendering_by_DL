@@ -1,5 +1,5 @@
 ## define GPU
-export CUDA_VISIBLE_DEVICES="0"
+export CUDA_VISIBLE_DEVICES="1"
 
 
 ## define parameters for 2D/3D U-Net segmentation

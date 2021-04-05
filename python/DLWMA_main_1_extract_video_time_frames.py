@@ -4,14 +4,13 @@
 
 import csv
 import cv2
-import glob
 import os
 import pandas as pd
 import math
 from subprocess import call
-import settings
-import function_list as ff
-cg = settings.Experiment() 
+import supplement
+import function_list_VR as ff
+cg = supplement.Experiment() 
 
 def extract_timeframes(main_path,movie_path,excel_file):
     """After we have all of our videos split between train and test, and
@@ -36,7 +35,6 @@ def extract_timeframes(main_path,movie_path,excel_file):
 
     # find all the movies
     excel_file = pd.read_excel(excel_file)
-    movie_list = excel_file['video_name']
 
     # extract time frames from each movie:
     for i in range(0,excel_file.shape[0]):
@@ -44,21 +42,14 @@ def extract_timeframes(main_path,movie_path,excel_file):
         print(i, case['video_name'])
 
         # set the file name for images
-        file_name = case['video_name']
-        file_name_sep = file_name.split('.') # remove .avi
-        file_name_no_ext = file_name_sep[0]
-        if len(file_name_sep) > 1:
-            for ii in range(1,len(file_name_sep)-1):
-                file_name_no_ext += '.'
-                file_name_no_ext += file_name_sep[ii]
-        save_folder = os.path.join(image_folder,file_name_no_ext)
-        ff.make_folder([save_folder])
+        save_folder = os.path.join(image_folder,case['Patient_Class'],case['Patient_ID'], case['video_name_no_ext'])
+        ff.make_folder([os.path.basename(os.path.basename(save_folder)), os.path.basename(save_folder), save_folder])
 
-        src = os.path.join(movie_path,file_name)
+        src = os.path.join(movie_path,case['Patient_Class'],case['Patient_ID'], 'Volume_Rendering_Movies',case['video_name'])
         if os.path.isfile(src) == 0:
             ValueError('no movie file')
 
-        if os.path.isfile(os.path.join(save_folder,file_name_no_ext+'-0001.jpg')) == 0:
+        if os.path.isfile(os.path.join(save_folder,case['video_name_no_ext']+'-0001.jpg')) == 0:
             cap = cv2.VideoCapture(src)
             count = 1
             frameRate = 1
@@ -74,7 +65,7 @@ def extract_timeframes(main_path,movie_path,excel_file):
                     if count >=10:
                         number = '00'+str(count)
 
-                dest = os.path.join(save_folder,file_name_no_ext+'-'+number+'.jpg')
+                dest = os.path.join(save_folder,case['video_name_no_ext']+'-'+number+'.jpg')
                 cv2.imwrite(dest,frame)
                 count += 1
             cap.release()
@@ -83,24 +74,20 @@ def extract_timeframes(main_path,movie_path,excel_file):
             
         # Now get how many frames it is.
         nb_frames = len(ff.find_all_target_files(['*.jpg'],save_folder))
-        data.append([case['video_name'],file_name_no_ext,nb_frames])
+        data.append([case['video_name'],nb_frames])
+        
 
     print('done extraction')
-    data_df = pd.DataFrame(data,columns = ['video_name','video_name_no_ext','nb_frames'])
+    data_df = pd.DataFrame(data,columns = ['video_name','nb_frames'])
     data_file = pd.merge(excel_file,data_df,on = "video_name")
-    data_file.to_excel(os.path.join(cg.nas_main_dir,'data_file.xlsx'),index=False)
-
+    data_file.to_excel(os.path.join(cg.fc_main_dir,'Patient_List/movie_list_w_classes_w_picked_timeframes11.xlsx'),index=False)
+ 
 
 def main():
-    """
-    Extract images from videos and build a new file that we
-    can use as our data input file. It can have format:
-
-    [train|test], class, filename, nb frames
-    """
+    
     main_path = cg.local_dir
     movie_path = os.path.join(main_path,'original_movie')
-    excel_file = os.path.join(cg.nas_main_dir,'movie_list_w_classes.xlsx')
+    excel_file = os.path.join(cg.fc_main_dir,'Patient_List/movie_list_w_classes_w_picked_timeframes.xlsx')
     extract_timeframes(main_path,movie_path,excel_file)
 
 if __name__ == '__main__':
