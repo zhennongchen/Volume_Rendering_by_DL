@@ -4,7 +4,7 @@ code_path = '/Users/zhennongchen/Documents/GitHub/Volume_Rendering_by_DL/matlab'
 addpath('/Users/zhennongchen/Documents/GitHub/Volume_Rendering_by_DL/matlab/nii_image_load')
 addpath('/Users/zhennongchen/Documents/GitHub/Volume_Rendering_by_DL/matlab/functions')
 %% load nii image
-nii_file_name = '/Users/zhennongchen/Documents/Zhennong_VR/Data/028/img-nii-sm/0.nii.gz';
+nii_file_name = '/Users/zhennongchen/Documents/Zhennong_VR/Example_Data/028/img-nii-sm/0.nii.gz';
 data = load_nii(nii_file_name);
 %% pixel spacing:
 % data.hdr can obtain the hdr dataset
@@ -19,7 +19,7 @@ nii_image = flip(nii_image,1);
 nii_image = flip(nii_image,2);
 nii_image = flip(nii_image,3);
 %% obtain the image data from dicom
-dicom_folder = '/Users/zhennongchen/Documents/Zhennong_VR/Data/028/img-dcm/dicom_5375';
+dicom_folder = '/Users/zhennongchen/Documents/Zhennong_VR/Example_Data/028/img-dcm/dicom_5375';
 dicom_files=dir([dicom_folder,'/','*.dcm']);
 cd(dicom_folder);
 

@@ -169,13 +169,13 @@ def DICE(seg1,seg2,target_val):
 
 
 # function: find time frame of a file
-def find_timeframe(file,num_of_dots):
+def find_timeframe(file,num_of_dots,signal = '/'):
     k = list(file)
     if num_of_dots == 1: #.png
         num1 = [i for i, e in enumerate(k) if e == '.'][-1]
     else:
         num1 = [i for i, e in enumerate(k) if e == '.'][-2]
-    num2 = [i for i,e in enumerate(k) if e== '/'][-1]
+    num2 = [i for i,e in enumerate(k) if e==signal][-1]
     kk=k[num2+1:num1]
     if len(kk)>1:
         return int(kk[0])*10+int(kk[1])
@@ -183,11 +183,11 @@ def find_timeframe(file,num_of_dots):
         return int(kk[0])
 
 # function: sort files based on their time frames
-def sort_timeframe(files,num_of_dots):
+def sort_timeframe(files,num_of_dots,signal = '/'):
     time=[]
     time_s=[]
     for i in files:
-        a = find_timeframe(i,num_of_dots)
+        a = find_timeframe(i,num_of_dots,signal)
         time.append(a)
         time_s.append(a)
     time_s.sort()

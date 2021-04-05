@@ -14,10 +14,13 @@ CC = bwconncomp(seg_slice_binary);
 centroid = round(regionprops(CC,'Centroid').Centroid);
 
 % Find ROI around center of mass
-figure()
+%figure()
 jj = seg_slice;
-jj(centroid(2),centroid(1)) = 2; imagesc(jj);
+jj(centroid(2),centroid(1)) = 2; 
 ROI = image([centroid(2)-range:centroid(2)+range],[centroid(1)-range:centroid(1)+range],[middle_slice-range:middle_slice+range]);
+ROI = ROI(ROI>0);
 WL = round(mean(ROI(:)));
+jj([centroid(2)-range:centroid(2)+range],[centroid(1)-range:centroid(1)+range]) = 2;
+imagesc(jj);
 
 WL = WL - decrease;

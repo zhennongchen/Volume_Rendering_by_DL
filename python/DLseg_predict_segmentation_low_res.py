@@ -27,7 +27,7 @@ import dvpy.tf
 import function_list_VR as ff
 
 cg = supplement.Experiment()
-fs = supplement.FileSystem(cg.patient_dir,cg.model_dir)
+
 
 # Define pre-trained model list
 model_s = 'model_batch3/model-U2_batch3_s-059-*'

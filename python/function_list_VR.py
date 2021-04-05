@@ -13,11 +13,29 @@ import math
 import string
 import matplotlib.pyplot as plt
 import cv2
+import pandas as pd
 
-# function: minimize the line of codes when you have several list to append
-def massive_list_append(list_list,append_list):
-    assert len(list_list) == len(append_list)
-    [list_list[i].append(append_list[i]) for i in range(0,len(append_list))]
+# function: read patient list from excel file
+def get_patient_list_from_excel_file(excel_file,exclude_criteria = None):
+    # exclude_criteria will be written as [[column_name,column_value],[column_name.column_value]]
+    data = pd.read_excel(excel_file)
+    data = data.fillna('')
+    patient_list = []
+    for i in range(0,data.shape[0]):
+        case = data.iloc[i]
+        if exclude_criteria != None:
+            exclude = 0
+            for e in exclude_criteria:
+                if case[e[0]] == e[1]:
+                    exclude += 1
+            if exclude == len(exclude_criteria):
+                continue
+        
+        patient_list.append([case['Patient_Class'],case['Patient_ID']])
+    return patient_list
+        
+
+
 
 # function: make folders
 def make_folder(folder_list):
@@ -177,10 +195,10 @@ def find_timeframe(file,num_of_dots,signal = '/'):
         num1 = [i for i, e in enumerate(k) if e == '.'][-2]
     num2 = [i for i,e in enumerate(k) if e==signal][-1]
     kk=k[num2+1:num1]
-    if len(kk)>1:
-        return int(kk[0])*10+int(kk[1])
-    else: 
-        return int(kk[0])
+    total = 0
+    for i in range(0,len(kk)):
+        total += int(kk[i]) * (10 ** (len(kk) - 1 -i))
+    return total
 
 # function: sort files based on their time frames
 def sort_timeframe(files,num_of_dots,signal = '/'):
@@ -197,6 +215,8 @@ def sort_timeframe(files,num_of_dots,signal = '/'):
         new_files.append(files[j])
     new_files = np.asarray(new_files)
     return new_files
+
+
 
 # function: set window level and width
 def set_window(image,level,width):
