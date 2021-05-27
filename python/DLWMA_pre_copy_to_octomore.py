@@ -15,9 +15,7 @@ cg = supplement.Experiment()
 # read the patient list from excel file (which shows the excluded data for volume rendering AI)
 excel_file = os.path.join(cg.fc_main_dir,'Patient_list/WMA_Label_List.xlsx')
 patient_list = ff.get_patient_list_from_excel_file(excel_file,[['angle_0','x'],['angle_120','x']])
-
-
-
+print(len(patient_list))
 
 # make folder in octomore
 local_folder = os.path.join(cg.local_dir,'original_movie')
@@ -35,14 +33,3 @@ for p in patient_list:
         ff.make_folder([os.path.dirname(dest_folder)])
         shutil.copytree(folder,dest_folder)
 
-# # copy to octomore
-# for m in movie_list:
-#     if os.path.exists(os.path.join(local_folder,os.path.basename(m))):
-#         print(" find %s in the destination. Skipping." % (os.path.basename(m)))
-#         continue
-#     else:
-#         shutil.copyfile(m,os.path.join(local_folder,os.path.basename(m)))
-
-# # check whether the transfer is completed
-# l = ff.find_all_target_files(['*.avi'],local_folder)
-# print(l.shape)

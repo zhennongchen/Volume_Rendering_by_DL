@@ -6,19 +6,25 @@ clear all;
 code_path = '/Users/zhennongchen/Documents/GitHub/Volume_Rendering_by_DL/matlab/';
 addpath(genpath(code_path));
 %% 
-abnormal_patient_list = Find_all_folders('/Volumes/Seagate MacOS/Patient_list/top_100/Normal');
+patient_list = Find_all_folders('/Volumes/Seagate MacOS/Patient_list/Retouched_Seg_Done/Normal/');
 class_list = []; id_list = [];
-for i = 1:size(abnormal_patient_list,1)
-    class = split(abnormal_patient_list(i).folder,'/');
+for i = 1:size(patient_list,1)
+    class = split(patient_list(i).folder,'/');
     class = class(end); class = class{1};
-    class_list = [class_list;class];
-    id_list = [id_list;convertCharsToStrings(abnormal_patient_list(i).name)];
+    class_list = [class_list;convertCharsToStrings(class)];
+    id_list = [id_list;convertCharsToStrings(patient_list(i).name)];
 end
-%% Define patient and load data
+patient_list = Find_all_folders('/Volumes/Seagate MacOS/Patient_list/Retouched_Seg_Done/Abnormal/');
+for i = 1:size(patient_list,1)
+    class = split(patient_list(i).folder,'/');
+    class = class(end); class = class{1};
+    class_list = [class_list;convertCharsToStrings(class)];
+    id_list = [id_list;convertCharsToStrings(patient_list(i).name)];
+end
 main_path = '/Volumes/Seagate MacOS/';
+%% Define patient and load data
 for num = 1:size(id_list,1)
-
-    patient_class = class_list(num,:);
+    patient_class = convertStringsToChars(class_list(num,:));
     patient_id = convertStringsToChars(id_list(num));
     disp(patient_id)
     save_file = [main_path,'/SQUEEZ_results/',patient_class,'/',patient_id,'/rot_angle_2mm.mat'];

@@ -23,7 +23,7 @@ for i = 1:size(patient_list,1)
     id_list = [id_list;convertCharsToStrings(patient_list(i).name)];
 end
 %% Step 1: Load case
-for num = 20%1:size(class_list,1)
+for num = 1:size(class_list,1)
     clear Image Image_LV Seg angle_list angle_increment I J image_files seg_files seg_raw WL WW
     patient_class = convertStringsToChars(class_list(num,:));
     patient_id = convertStringsToChars(id_list(num));
@@ -37,7 +37,7 @@ for num = 20%1:size(class_list,1)
     if isfile([save_folder,'/',patient_id,'_volume_rendering_movie_all_angles.avi']) == 1
         if isfile([save_folder,'/',patient_id,'_volume_rendering_movie_all_angles.mp4']) == 1
             disp(['already done'])
-            %continue
+            continue
         end
     end
     
@@ -200,135 +200,135 @@ for num = 20%1:size(class_list,1)
     end
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%     % Generate rotating LV movie as well (two heartbeats for each angle)
-%     %num_of_cardiac_cycle = 3;
-%     %angle_increment = 360/num_of_cardiac_cycle/size(Image,2);
-%     %angle = 0;
-%     
-%     if isfile([save_folder,'/',patient_id,'_volume_rendering_movie_all_angles.avi']) == 1
-%         disp(['already done avi movie for all_angles'])
-%     else
-%     
-%     save_name = [save_folder,'/',patient_id,'_volume_rendering_movie_all_angles'];
-%     writerObj = VideoWriter(save_name,'Motion JPEG AVI');
-%     writerObj.Quality = 100;
-%     writerObj.FrameRate = 5;
-%     open(writerObj);
-%    
-%         
-%     for i = 1:size(angle_list,2)
-%         angle = angle_list(i);
-%         for cycle = 1:2
-%          for t = 1:size(Image,2)
-%             close all
-%             I = Image_LV(t).img;
-%             J = Turn_data_into_greyscale(I,WL,WW);
-%         
-%             config_image_new = config_image;
-%             [rot_in_xy,~] = Rotation_Matrix_From_Three_Axis(0,0,angle,1);
-%             new_position = rot_in_xy * position;
-%             config_image_new.CameraPosition = new_position';
-%         
-%             h = figure('pos',figure_size);
-%             volshow(J,config_image_new,'ScaleFactor',scale); 
-%             frame = getframe(h);
-%             writeVideo(writerObj, getframe(gcf));
-%             close all
-%             %angle = angle + angle_increment;
-%          end
-%         end
-%     end
-%     close(writerObj);
-%     close all
-%     disp(['Done making AVI movie for all_angles '])
-%     end
-%     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%     
-%     
-%     %%%%%%%%%%%%%%%%%%% MP4 MOVIE (WITH LVOT)%%%%%%%%%%%%%%%
-%     movie_save_folder_mp4 = [save_folder,'/Volume_Rendering_Movies_MP4'];
-%     mkdir(movie_save_folder_mp4);
-%     
-%     for i = 1:size(angle_list,2)
-%         angle = angle_list(:,i);
-% 
-%         save_name = [movie_save_folder_mp4,'/',patient_id,'_volume_rendering_movie_',num2str(angle)];
-%         if isfile([save_name,'.mp4']) == 1
-%             disp(['already done MP4 movie for angle ',num2str(angle)])
-%             continue
-%         end
-%         
-%         writerObj = VideoWriter(save_name,'MPEG-4');
-%         writeObj.Quality = 100;
-%         writerObj.FrameRate = 5;
-%     
-%         % open the video writer
-%         open(writerObj);
-% 
-%         % write the frames to the video
-%         for t = 1:size(Image,2)
-%             %disp(t)
-%             close all;
-%             I = Image_LV_LVOT(t).img;
-%             J = Turn_data_into_greyscale(I,WL,WW); % apply WL and Ww
-%         
-%             config_image_new = config_image;
-%             [rot_in_xy,~] = Rotation_Matrix_From_Three_Axis(0,0,angle,1);
-%             new_position = rot_in_xy * position;
-%             config_image_new.CameraPosition = new_position';
-%         
-%             h = figure('pos',figure_size);
-%             volshow(J,config_image_new,'ScaleFactor',scale); 
-%             frame = getframe(h);
-%             writeVideo(writerObj, getframe(gcf));
-%             close all
-%         end
-%    
-%         close(writerObj);
-%         close all
-%         disp(['Done making MP4 movie for degree ',num2str(angle)])
-%     end
-%     
-%     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%     % Generate rotating LV movie as well (two heartbeats for each angle)
-%     if isfile([save_folder,'/',patient_id,'_volume_rendering_movie_all_angles.mp4']) == 1
-%         disp(['already done MP4 movie for all_angles'])
-%     else
-%     
-%     save_name = [save_folder,'/',patient_id,'_volume_rendering_movie_all_angles'];
-%     writerObj = VideoWriter(save_name,'MPEG-4');
-%     writerObj.Quality = 100;
-%     writerObj.FrameRate = 5;
-%     open(writerObj);
-%     
-%     for i = 1:size(angle_list,2)
-% 
-%         angle = angle_list(i);
-%         for cycle = 1:2
-%          for t = 1:size(Image,2)
-%             %disp([angle,t])
-%             close all
-%             I = Image_LV_LVOT(t).img;
-%             J = Turn_data_into_greyscale(I,WL,WW);
-%         
-%             config_image_new = config_image;
-%             [rot_in_xy,~] = Rotation_Matrix_From_Three_Axis(0,0,angle,1);
-%             new_position = rot_in_xy * position;
-%             config_image_new.CameraPosition = new_position';
-%         
-%             h = figure('pos',figure_size);
-%             volshow(J,config_image_new,'ScaleFactor',scale); 
-%             frame = getframe(h);
-%             writeVideo(writerObj, getframe(gcf));
-%             close all
-%             
-%          end
-%         end
-%     end
-%     close(writerObj);
-%     close all
-%     disp(['Done making MP4 movie for all_angles '])
-%     end
+    % Generate rotating LV movie as well (two heartbeats for each angle)
+    %num_of_cardiac_cycle = 3;
+    %angle_increment = 360/num_of_cardiac_cycle/size(Image,2);
+    %angle = 0;
+    
+    if isfile([save_folder,'/',patient_id,'_volume_rendering_movie_all_angles.avi']) == 1
+        disp(['already done avi movie for all_angles'])
+    else
+    
+    save_name = [save_folder,'/',patient_id,'_volume_rendering_movie_all_angles'];
+    writerObj = VideoWriter(save_name,'Motion JPEG AVI');
+    writerObj.Quality = 100;
+    writerObj.FrameRate = 5;
+    open(writerObj);
+   
+        
+    for i = 1:size(angle_list,2)
+        angle = angle_list(i);
+        for cycle = 1:2
+         for t = 1:size(Image,2)
+            close all
+            I = Image_LV(t).img;
+            J = Turn_data_into_greyscale(I,WL,WW);
+        
+            config_image_new = config_image;
+            [rot_in_xy,~] = Rotation_Matrix_From_Three_Axis(0,0,angle,1);
+            new_position = rot_in_xy * position;
+            config_image_new.CameraPosition = new_position';
+        
+            h = figure('pos',figure_size);
+            volshow(J,config_image_new,'ScaleFactor',scale); 
+            frame = getframe(h);
+            writeVideo(writerObj, getframe(gcf));
+            close all
+            %angle = angle + angle_increment;
+         end
+        end
+    end
+    close(writerObj);
+    close all
+    disp(['Done making AVI movie for all_angles '])
+    end
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+    
+    %%%%%%%%%%%%%%%%%%% MP4 MOVIE (WITH LVOT)%%%%%%%%%%%%%%%
+    movie_save_folder_mp4 = [save_folder,'/Volume_Rendering_Movies_MP4'];
+    mkdir(movie_save_folder_mp4);
+    
+    for i = 1:size(angle_list,2)
+        angle = angle_list(:,i);
+
+        save_name = [movie_save_folder_mp4,'/',patient_id,'_volume_rendering_movie_',num2str(angle)];
+        if isfile([save_name,'.mp4']) == 1
+            disp(['already done MP4 movie for angle ',num2str(angle)])
+            continue
+        end
+        
+        writerObj = VideoWriter(save_name,'MPEG-4');
+        writeObj.Quality = 100;
+        writerObj.FrameRate = 5;
+    
+        % open the video writer
+        open(writerObj);
+
+        % write the frames to the video
+        for t = 1:size(Image,2)
+            %disp(t)
+            close all;
+            I = Image_LV_LVOT(t).img;
+            J = Turn_data_into_greyscale(I,WL,WW); % apply WL and Ww
+        
+            config_image_new = config_image;
+            [rot_in_xy,~] = Rotation_Matrix_From_Three_Axis(0,0,angle,1);
+            new_position = rot_in_xy * position;
+            config_image_new.CameraPosition = new_position';
+        
+            h = figure('pos',figure_size);
+            volshow(J,config_image_new,'ScaleFactor',scale); 
+            frame = getframe(h);
+            writeVideo(writerObj, getframe(gcf));
+            close all
+        end
+   
+        close(writerObj);
+        close all
+        disp(['Done making MP4 movie for degree ',num2str(angle)])
+    end
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % Generate rotating LV movie as well (two heartbeats for each angle)
+    if isfile([save_folder,'/',patient_id,'_volume_rendering_movie_all_angles.mp4']) == 1
+        disp(['already done MP4 movie for all_angles'])
+    else
+    
+    save_name = [save_folder,'/',patient_id,'_volume_rendering_movie_all_angles'];
+    writerObj = VideoWriter(save_name,'MPEG-4');
+    writerObj.Quality = 100;
+    writerObj.FrameRate = 5;
+    open(writerObj);
+    
+    for i = 1:size(angle_list,2)
+
+        angle = angle_list(i);
+        for cycle = 1:2
+         for t = 1:size(Image,2)
+            %disp([angle,t])
+            close all
+            I = Image_LV_LVOT(t).img;
+            J = Turn_data_into_greyscale(I,WL,WW);
+        
+            config_image_new = config_image;
+            [rot_in_xy,~] = Rotation_Matrix_From_Three_Axis(0,0,angle,1);
+            new_position = rot_in_xy * position;
+            config_image_new.CameraPosition = new_position';
+        
+            h = figure('pos',figure_size);
+            volshow(J,config_image_new,'ScaleFactor',scale); 
+            frame = getframe(h);
+            writeVideo(writerObj, getframe(gcf));
+            close all
+            
+         end
+        end
+    end
+    close(writerObj);
+    close all
+    disp(['Done making MP4 movie for all_angles '])
+    end
 
 end
     

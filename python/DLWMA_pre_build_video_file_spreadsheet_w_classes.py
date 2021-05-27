@@ -14,11 +14,11 @@ import function_list_VR as ff
 cg = supplement.Experiment() 
 
 
-excel_file = os.path.join(cg.fc_main_dir,'Patient_List/WMA_Label_List.xlsx')
+excel_file = os.path.join(cg.fc_main_dir,'Patient_List/WMA_Label_List_test.xlsx')
 excel_file = pd.read_excel(excel_file)
 # clean data
 excel_file = excel_file.fillna('')
-excel_file = excel_file[excel_file['angle_60'] != 'x']
+excel_file = excel_file.loc[(excel_file['angle_60'] != 'x') & (excel_file['angle_300'] != 'x')]
 print(excel_file.shape)
 
 # build the excel sheet
@@ -57,5 +57,5 @@ for i in range(excel_file.shape[0]):
         result.append([video_name, assigned_class, label, patient_class, patient_id, angle, video_name_no_ext])
 
 result_df = pd.DataFrame(result,columns= ['video_name', 'class', 'label', 'Patient_Class', 'Patient_ID', 'angle', 'video_name_no_ext'])
-result_df.to_excel(os.path.join(cg.fc_main_dir,'Patient_List/movie_list_w_classes.xlsx'),index = False)
+result_df.to_excel(os.path.join(cg.fc_main_dir,'Patient_List/movie_list_w_classes_test.xlsx'),index = False)
 

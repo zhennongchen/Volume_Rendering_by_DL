@@ -4,24 +4,44 @@
 close all;
 clear all;
 addpath(genpath('/Users/zhennongchen/Documents/GitHub/Volume_Rendering_by_DL/matlab/'));
-%% List all patients
-main_path = '/Volumes/Seagate MacOS/';
-image_path = [main_path,'AI_plane_validation_study/Segs/Abnormal/'];
-patient_list = Find_all_folders(image_path);
+%% Find patient list
+patient_list = Find_all_folders('/Volumes/Seagate MacOS/predicted_seg/Abnormal/');
+class_list = []; id_list = [];
+for i = 1:size(patient_list,1)
+    class = split(patient_list(i).folder,'/');
+    class = class(end); class = class{1};
+    class_list = [class_list;convertCharsToStrings(class)];
+    id_list = [id_list;convertCharsToStrings(patient_list(i).name)];
+end
+patient_list = Find_all_folders('/Volumes/Seagate MacOS/predicted_seg/Normal/');
+for i = 1:size(patient_list,1)
+    class = split(patient_list(i).folder,'/');
+    class = class(end); class = class{1};
+    class_list = [class_list;convertCharsToStrings(class)];
+    id_list = [id_list;convertCharsToStrings(patient_list(i).name)];
+end
 %% Do pixel clearning:
-c = 0;
+main_folder = '/Volumes/Seagate MacOS/predicted_seg/';
+
 % Global_disconnect_cases = [];
 % LA_disconnect_cases = [];
 % LVOT_disconnect_cases = [];
-for i = 1:size(patient_list,1)
-    patient_name = patient_list(i).name;
-    disp(patient_name)
-    patient_folder = [image_path,patient_name,'/seg-pred/'];
+for i = 1:size(id_list,1)
+    patient_class = convertStringsToChars(class_list(i,:));
+    patient_id = convertStringsToChars(id_list(i));
+    disp(patient_id)
+    patient_folder = [main_folder,patient_class,'/',patient_id,'/seg-pred-0.625-4classes/'];
     
     if isfolder(patient_folder) == 1
+        
+       % check whether it's done:
+       if isfile([main_folder,patient_class,'/',patient_id,'/seg-pred-0.625-4classes-connected-mat/pred_s_0.mat']) == 1
+           disp(['already done'])
+           continue
+       end
+       
        % make save_folder
-       c = c+1;
-       save_folder = [image_path,patient_name,'/seg-pred-connected-mat'];
+       save_folder = [main_folder,patient_class,'/',patient_id,'/seg-pred-0.625-4classes-connected-mat/'];
        mkdir(save_folder)
         
        nii_list = Sort_time_frame(Find_all_files(patient_folder),'_');

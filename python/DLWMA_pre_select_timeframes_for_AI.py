@@ -12,7 +12,7 @@ import nibabel as nb
 import function_list_VR as ff
 cg = supplement.Experiment() 
 
-excel_file = pd.read_excel(os.path.join(cg.fc_main_dir,'Patient_List/movie_list_w_classes.xlsx'))
+excel_file = pd.read_excel(os.path.join(cg.fc_main_dir,'Patient_List/movie_list_w_classes_test.xlsx'))
 
 # get patient_list:
 patient_id_list = np.unique(excel_file['Patient_ID'])
@@ -28,7 +28,7 @@ for p in patient_list:
     patient_id = p[1]
 
     # find segmentations
-    segmentations = ff.sort_timeframe(ff.find_all_target_files(['pred_*.nii.gz'],os.path.join(cg.nas_main_dir,'predicted_seg',patient_class,patient_id,'seg-pred-0.625-4classes-connected-retouch')),2,'_')
+    segmentations = ff.sort_timeframe(ff.find_all_target_files(['pred_*.nii.gz'],os.path.join(cg.nas_main_dir,'predicted_seg',patient_class,patient_id,'seg-pred-0.625-4classes-connected-retouch-downsample')),2,'_')
     lv_volume_list = []
     for s in segmentations:
         data = nb.load(s).get_fdata()
@@ -56,7 +56,7 @@ for p in patient_list:
 
 timeframe_pick_df = pd.DataFrame(timeframe_pick, columns = ['video_name','ED','ES','mid_ES'])
 df = pd.merge(excel_file, timeframe_pick_df, on = "video_name")
-df.to_excel(os.path.join(cg.fc_main_dir,'Patient_List/movie_list_w_classes_w_picked_timeframes.xlsx'),index = False)
+df.to_excel(os.path.join(cg.fc_main_dir,'Patient_List/movie_list_w_classes_w_picked_timeframes_test.xlsx'),index = False)
     
 
 

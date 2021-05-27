@@ -4,7 +4,7 @@ code_path = '/Users/zhennongchen/Documents/GitHub/Volume_Rendering_by_DL/matlab/
 addpath(genpath(code_path));
 
 %% Find patient list
-patient_list = Find_all_folders('/Volumes/Seagate MacOS/Patient_list/Retouched_Seg_Done/Normal/');
+patient_list = Find_all_folders('/Volumes/Seagate MacOS/Patient_list/RSNA/Normal/');
 class_list = []; id_list = [];
 for i = 1:size(patient_list,1)
     class = split(patient_list(i).folder,'/');
@@ -12,7 +12,7 @@ for i = 1:size(patient_list,1)
     class_list = [class_list;convertCharsToStrings(class)];
     id_list = [id_list;convertCharsToStrings(patient_list(i).name)];
 end
-patient_list = Find_all_folders('/Volumes/Seagate MacOS/Patient_list/Retouched_Seg_Done/Abnormal/');
+patient_list = Find_all_folders('/Volumes/Seagate MacOS/Patient_list/RSNA/Abnormal/');
 for i = 1:size(patient_list,1)
     class = split(patient_list(i).folder,'/');
     class = class(end); class = class{1};

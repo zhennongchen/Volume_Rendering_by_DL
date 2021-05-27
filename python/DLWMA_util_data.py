@@ -48,7 +48,7 @@ class DataSet():
         self.class_limit = class_limit
         self.sequence_path = os.path.join(cg.local_dir,'sequences')
         self.max_frames = 300  # max number of frames a video can have for us to use it
-
+        
         # Get the data.
         self.data = self.get_data()
 
@@ -64,6 +64,7 @@ class DataSet():
     def get_data(self):
         """Load our data from file."""
         data = pd.read_excel(self.data_file)
+        
         return data
 
     def clean_data(self):
@@ -73,10 +74,10 @@ class DataSet():
         D = self.data
         for i in range(0,D.shape[0]):
             item = D.iloc[i]
-            if int(item['nb_frames']) >= self.seq_length and int(item['nb_frames']) <= self.max_frames \
-                    and item['class'] in self.classes:
-                data_clean.append(item)
-
+            # if int(item['nb_frames']) >= self.seq_length and int(item['nb_frames']) <= self.max_frames \
+            #         and item['class'] in self.classes:
+            data_clean.append(item)
+    
         return data_clean
 
     def get_classes(self):

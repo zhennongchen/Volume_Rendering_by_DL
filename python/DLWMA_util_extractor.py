@@ -44,6 +44,7 @@ class Extractor():
 
         # Get the prediction.
         features = self.model.predict(x)
+        #print(self.model.summary())
 
         if self.weights is None:
             # For imagenet/default network:

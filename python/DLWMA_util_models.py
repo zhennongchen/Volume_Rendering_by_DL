@@ -10,6 +10,8 @@ from keras.layers.convolutional import (Conv2D, MaxPooling3D, Conv3D,
     MaxPooling2D)
 from collections import deque
 import sys
+import supplement
+cg = supplement.Experiment()
 
 class ResearchModels():
     def __init__(self, nb_classes, model, seq_length,learning_rate,learning_decay,
@@ -90,7 +92,7 @@ class ResearchModels():
                     input_shape=self.input_shape,
                     dropout=0.5))
         model.add(Dense(512, activation='relu'))
-        model.add(Dropout(0.5))
+        model.add(Dropout(0.5, seed = cg.seed))
         model.add(Dense(self.nb_classes, activation='softmax'))
         return model
 
@@ -103,9 +105,9 @@ class ResearchModels():
                     input_shape=self.input_shape,
                     dropout=0.5))
         model.add(Dense(512, activation='relu'))
-        model.add(Dropout(0.5))
+        model.add(Dropout(0.5, seed = cg.seed))
         model.add(Dense(128, activation='relu'))
-        model.add(Dropout(0.5))
+        model.add(Dropout(0.5, seed = cg.seed))
         model.add(Dense(1, activation='relu'))
         return model
 

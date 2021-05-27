@@ -43,7 +43,7 @@ def extract_timeframes(main_path,movie_path,excel_file):
 
         # set the file name for images
         save_folder = os.path.join(image_folder,case['Patient_Class'],case['Patient_ID'], case['video_name_no_ext'])
-        ff.make_folder([os.path.basename(os.path.basename(save_folder)), os.path.basename(save_folder), save_folder])
+        ff.make_folder([os.path.dirname(os.path.dirname(save_folder)), os.path.dirname(save_folder), save_folder])
 
         src = os.path.join(movie_path,case['Patient_Class'],case['Patient_ID'], 'Volume_Rendering_Movies',case['video_name'])
         if os.path.isfile(src) == 0:
@@ -80,14 +80,14 @@ def extract_timeframes(main_path,movie_path,excel_file):
     print('done extraction')
     data_df = pd.DataFrame(data,columns = ['video_name','nb_frames'])
     data_file = pd.merge(excel_file,data_df,on = "video_name")
-    data_file.to_excel(os.path.join(cg.fc_main_dir,'Patient_List/movie_list_w_classes_w_picked_timeframes11.xlsx'),index=False)
+    data_file.to_excel(os.path.join(cg.fc_main_dir,'Patient_List/movie_list_w_classes_w_picked_timeframes_test.xlsx'),index=False)
  
 
 def main():
     
     main_path = cg.local_dir
     movie_path = os.path.join(main_path,'original_movie')
-    excel_file = os.path.join(cg.fc_main_dir,'Patient_List/movie_list_w_classes_w_picked_timeframes.xlsx')
+    excel_file = os.path.join(cg.fc_main_dir,'Patient_List/movie_list_w_classes_w_picked_timeframes_test.xlsx')
     extract_timeframes(main_path,movie_path,excel_file)
 
 if __name__ == '__main__':

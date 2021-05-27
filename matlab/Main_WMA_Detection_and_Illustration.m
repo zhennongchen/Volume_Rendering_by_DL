@@ -33,7 +33,7 @@ end
 %%
 % WMA_region_size_counting: yellow: RSct>-0.15, red: RSct>-0.10
 % WMA_region_size_counting_0.2_0.1: yellow: RSct>-0.20, red: RSct>-0.10
-for num = 1:size(class_list,1)
+for num = 226%1:size(class_list,1)
     
     patient_class = convertStringsToChars(class_list(num,:));
     patient_id = convertStringsToChars(id_list(num));
@@ -43,7 +43,7 @@ for num = 1:size(class_list,1)
     
     save_folder = [data_path,'Volume_Rendering_Movies_MATLAB/',patient_class,'/',patient_id];
     
-    region_measure_done = isfile([save_folder,'/WMA_region_size_counting_0.2_0.1.txt']);
+    region_measure_done = isfile([save_folder,'/WMA_region_size_counting.txt']);
     movie_done = isfile([save_folder,'/SQUEEZ_movies/',patient_id,'_AllViews_4DSqueez.mp4']);
 
     if region_measure_done == 1 && movie_done == 1
@@ -102,7 +102,7 @@ for num = 1:size(class_list,1)
     es = find(info.vol == min(info.vol));
     
     % assign MI pixels (with RSct > threshold) in the segmentation
-    threshold_RSct_moderate = -0.20;
+    threshold_RSct_moderate = -0.15;
     threshold_RSct_severe = -0.10;
     slice_show = 0;%round(size(Data(ed).seg_rot,3)/2) -10;
     % in seg_WMA_multi, moderate pixels' vale = 9, severe pixels = 20
@@ -110,10 +110,10 @@ for num = 1:size(class_list,1)
 
     % make labeled_vol_show
     view_angle = [0:60:350];
-    image_save_folder = [save_folder,'/WMA_labeled_pngs_0.2_0.1'];
+    image_save_folder = [save_folder,'/WMA_labeled_pngs'];
     mkdir(image_save_folder);
     Make_Labeled_Volshow_For_WMA(view_angle,Data(ed).seg_rot,seg_WMA,seg_WMA_multi,config_label_LV,config_label_MI,config_label_overlaid_multi_class_for_WMA,config_label_overlaid_severe_WMA,...
-        config_label_overlaid_moderate_WMA,image_save_folder,patient_class,patient_id)
+    config_label_overlaid_moderate_WMA,image_save_folder,patient_class,patient_id)
     
     % measure WMA patches size
     rows_of_Mitral_Valve = 20; 
@@ -129,7 +129,7 @@ for num = 1:size(class_list,1)
     [WMA_patches_measures] = Measure_Region_of_WMA_Size_From_Labeled_Volshow(WMA_exist, seg_WMA_multi,patient_id,image_save_folder,view_angle,rows_of_Mitral_Valve,rows_of_Mitral_Valve_center, dilate_size,multi_class_in_WMA_measure,config_label_MI);
    
     % save as txt file
-    fid = fopen([save_folder,'/WMA_region_size_counting_0.2_0.1.txt'],'wt');
+    fid = fopen([save_folder,'/WMA_region_size_counting.txt'],'wt');
     for ii = 1:size(WMA_patches_measures,2)
         w = WMA_patches_measures(ii);
         if multi_class_in_WMA_measure == 0

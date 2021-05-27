@@ -33,7 +33,7 @@ main_path = cg.local_dir
 # Set defaults.
 #seq_length = 20 # no default seq_length
 class_limit = None  # Number of classes to extract. Can be 1-101 or None for all.
-data_file = os.path.join(cg.fc_main_dir,'Patient_List/movie_list_w_classes_w_picked_timeframes.xlsx')
+data_file = os.path.join(cg.fc_main_dir,'Patient_List/movie_list_w_classes_w_picked_timeframes_test.xlsx')
 
 # Get the dataset.
 data = DataSet(data_file = data_file,validation_batch = 0, seq_length = 0, class_limit=class_limit)
@@ -79,6 +79,7 @@ for case in data.data:
     np.save(path, sequence)
 
     pbar.update(1)
+   
 
 
 pbar.close()
