@@ -30,9 +30,9 @@ severe_strain_p = v_list(severe_strain_idx,:,:);
 seg_WMA_multi = double(seg_rot == 1);
 for i = 1: size(moderate_strain_p,1)
     p = moderate_strain_p(i,:);
-    seg_WMA_multi(p(2),p(1),p(3)) = 9; 
+    seg_WMA_multi(p(2),p(1),p(3)) = 9;  %moderate is 9
 end
 for i = 1: size(severe_strain_p,1)
-    p = severe_strain_p(i,:);
-    seg_WMA_multi(p(2),p(1),p(3)) = 20; 
+    p = severe_strain_p(i,:); 
+    seg_WMA_multi(p(2),p(1),p(3)) = 20; % severe is 20
 end

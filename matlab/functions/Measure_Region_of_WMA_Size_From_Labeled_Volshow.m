@@ -1,4 +1,4 @@
-function [WMA_patches_measures] = Measure_Region_of_WMA_Size_From_Labeled_Volshow(WMA_exist, seg_WMA_multi,patient_id,image_save_folder,view_angle,rows_of_Mitral_Valve,rows_of_Mitral_Valve_center,dilate_size,multi_class_in_WMA,config_label_MI)
+function [WMA_patches_measures] = Measure_Region_of_WMA_Size_From_Labeled_Volshow(WMA_exist, seg_WMA_multi,patient_id,image_save_folder,view_angle,rows_of_Mitral_Valve,rows_of_Mitral_Valve_center,dilate_size,multi_class_in_WMA,config_label_MI,save_file_basename)
 
 % this function measures regional of WMA sizes from the labeled Volshow for each view angle. 
 % rows_of_MV, dilate_size are inputs for function Measure_WMA_Patches_Size_From_BinaryI_w_MV_removed.m
@@ -128,7 +128,7 @@ if WMA_exist == 1
 end
     
     [dirname,~,~] = fileparts(image_save_folder);
-    save([dirname,'/WMA_regions_measures_per_angle.mat'],'WMA_patches_measures');
+    save([dirname,'/',save_file_basename],'WMA_patches_measures');
    
     
 else
@@ -158,7 +158,7 @@ else
     
     end
     [dirname,~,~] = fileparts(image_save_folder);
-    save([dirname,'/WMA_regions_measures_per_angle.mat'],'WMA_patches_measures');
+    save([dirname,'/',save_file_basename],'WMA_patches_measures');
 end
         
     
